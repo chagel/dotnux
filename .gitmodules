@@ -1,0 +1,3 @@
+[submodule "dotbase"]
+	path = dotbase
+	url = https://github.com/chagel/dotbase.git
