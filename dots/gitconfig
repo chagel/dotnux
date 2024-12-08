@@ -1,0 +1,103 @@
+[user]
+	name = MGC
+	email = chagel@gmail.com
+	signingkey = CE7B58CACC69FFB0
+	useConfigOnly = true
+[push]
+	default = simple
+[alias]
+  df = diff
+  dt = difftool
+  mt = mergetool
+	mgt = merge -X theirs 
+  ci = commit -a -v
+  co = checkout
+  st = status
+	br = branch --sort=-creatordate 
+  lg = log --graph --pretty=format:'%Cred%h%Creset %Cblue%aN%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative 
+	tags = !"git for-each-ref \
+		--sort=taggerdate \
+		--format '%(tag)_,,,_%(taggerdate:raw)_,,,_%(taggername)_,,,_%(subject)' refs/tags \
+		| awk 'BEGIN { FS = \"_,,,_\"  } ; { t=strftime(\"%Y-%m-%d  %H:%M\",$2); printf \"%-20s %-18s %-25s %s\\n\", t, $1, $4, $3  }'"
+
+
+[diff]
+    tool = nvimdiff
+[difftool]
+    prompt = false
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+[merge]
+    tool = nvimdiff
+[mergetool]
+    prompt = true
+	keepBackup = false
+[mergetool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\" -c 'wincmd w' -c 'wincmd J'"
+[core]
+	excludesfile = ~/.gitignore_global
+	quotepath = false
+	longpaths = true
+	autocrlf = input
+	trustctime = false
+	attributesfile = ~/.attributes_global
+	ignorecase = true
+	untrackedcache = true
+[init]
+	templatedir = ~/.git_template
+	defaultBranch = master
+[https]
+[http]
+	postBuffer = 655360000
+[socks]
+
+[commit]
+	; gpgsign = true
+
+[branch]
+	autosetuprebase = always
+
+[submodule]
+  recurse = true
+
+[credential "https://github.com"]
+	helper = 
+	helper = !gh auth git-credential
+
+[credential "smtp://chagel%40gmail.com@smtp.gmail.com%3a587"]
+	helper = !pass show git/sendemail_pass
+
+[sendemail]
+	smtpserver = smtp.gmail.com
+	smtpuser = chagel@gmail.com
+	smtpencryption = tls
+	smtpserverport = 587
+	annotate = yes
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[diff "text"]
+	textconv = cat
+[lfs]
+	concurrenttransfers = 16
+	fetchrecentrefsdays = 0
+	pruneoffsetdays = 0
+	dialtimeout = 3
+	tlstimeout = 3
+[lfs "transfer"]
+	maxretries = 1
+	maxretrydelay = 2
+[merge "lfs-text"]
+	driver = git lfs merge-driver --ancestor %O --current %A --other %B --marker-size %L --output %A --program 'git merge-file --stdout --marker-size=%%L %%A %%O %%B >%%D'
+[rebase]
+	backend = merge
+[protocol]
+	version = 1
+[pull]
+	rebase = false
+[safe]
+	directory = *
+[credential]
+	helper = cache

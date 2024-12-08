@@ -1,0 +1,11 @@
+# https://github.com/koekeishiya/skhd/issues/1
+
+meh - t : /Applications/kitty.app/Contents/MacOS/kitty --single-instance -d ~
+
+# cmd + h/l/k/j to move focus on windows(Amethyst) 
+cmd - h : skhd -k "cmd - k"
+cmd - l : skhd -k "cmd - j"
+
+# cmd + comma/dot to move focus on screens
+cmd - 0x2B : skhd -k "cmd + ctrl - 1"
+cmd - 0x2F : skhd -k "cmd + ctrl - 2"

@@ -1,0 +1,129 @@
+#!/bin/bash
+#
+# MAP AS A WALLPAPER
+#
+## Dependencies:
+# [xdpyinfo]
+# [feh]
+# [jq]      https://stedolan.github.io/jq
+# [paferes] https://github.com/sindresorhus/pageres-cli
+#
+## Services:
+# [ipstack] https://ipstack.com
+# [positionstack] https://positionstack.com
+# [mapbox]  http://mapbox.com
+
+REPO="$HOME/.config/wallpaper"
+PLACE=""
+WS_PID=""
+
+ip() {
+  curl --silent https://ifconfig.me
+}
+
+coords_from_place() {
+  PS_TOKEN=$(pass keys/positionstack)
+  gps=$(curl --silent -G --data-urlencode "access_key=$PS_TOKEN" --data-urlencode "query=$1" http://api.positionstack.com/v1/forward) 
+  lat=$(echo "$gps" | jq -r ".data[0].latitude")
+  lng=$(echo "$gps" | jq -r ".data[0].longitude")
+  echo "lat=$lat&lng=$lng"
+}
+
+coords_from_ip() {
+  IS_TOKEN=$(pass keys/ipstack)
+  gps=$(curl --silent "http://api.ipstack.com/$1?access_key=$IS_TOKEN&format=json") 
+  lat=$(echo "$gps"| jq -r '.latitude')
+  lng=$(echo "$gps"| jq -r '.longitude')
+  echo "lat=$lat&lng=$lng"
+}
+
+start_ws() {
+  ruby -run -ehttpd . -p 8000 & 
+  WS_PID=$!
+}
+
+map_url() {
+  style="dark-v8" #light, dark, streets-v10, outdoors, satellite
+  token="$(pass keys/mapbox_token)"
+  zoom=$2
+  [[ -z "$zoom" ]] && zoom=12
+  echo "http://localhost:8000/.map.html?$1&token=$token&zoom=$zoom&style=$style"
+}
+
+res() {
+  xdpyinfo | awk '/dimensions/{print $2}'
+}
+
+capture() {
+  pageres "$1" "$2" --filename="$(date +%s000)-$PLACE" --overwrite --d=10 --hide='.mapboxgl-ctrl-attrib' > /dev/null
+}
+
+relink() {
+  file=$1
+  if [[ -z "$file" ]]; then
+    file="default/default-$(res).png"
+  else
+    file=$(query "$1")
+  fi
+  ln -fs "$file" current.png
+}
+
+setwall() {
+  feh --bg-tile current.png
+}
+
+list() {
+  ls -- *-*.png
+}
+
+query() {
+  find . -name "*$1*.png" | tail -n 1
+}
+
+render_and_capture() {
+  PLACE=$1
+  ZOOM=$2
+
+  if [[ "$PLACE" == "local" ]]; then
+    gps=$(coords_from_ip "$(ip)")
+  else
+    EXISTING=$(query "$PLACE")
+
+    # set cached city wallpaper if found
+    if [[ -n "$EXISTING" ]]; then
+      relink "$PLACE"
+      setwall
+      exit 1
+    else
+      gps=$(coords_from_place "$PLACE")
+    fi
+  fi
+
+  start_ws
+  url=$(map_url "$gps" "$ZOOM")
+  size=$(res)
+  capture "$url" "$size"
+  relink "$PLACE"
+  setwall
+
+  kill $WS_PID 
+}
+
+main() {
+  # set default wallpaper if no city/pos specified
+  if [[ -z "$1" ]]; then
+    relink
+    setwall
+  else
+    render_and_capture "$1" "$2"
+  fi
+}
+
+cd "$REPO" || exit
+
+case "$1" in 
+  list) list;;
+  set) main "$2" "$3";;
+  *) main;;
+esac
+

@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Auto detect current monitors with xrandr
+
+LAPTOP="eDP-1"
+RIGHT_AVAILABLE=(DP-1 DP-2)
+LEFT_AVAILABLE=(DP-2-2 DP-1-2)
+LEFT=""
+RIGHT=""
+RANDR_CMD="xrandr"
+MODE="$1"
+
+output_laptop() {
+  LID_CLOSED=$(cat /proc/acpi/button/lid/LID/state | grep "closed")
+  if [ ! -n "$LID_CLOSED" ]; then
+    echo "--output $LAPTOP --auto"
+  else
+    echo "--output $LAPTOP --off"
+  fi
+}
+
+connected() {
+  SCREEN=$1
+  screen_active=$(xrandr -q | grep "\*" -B3 | grep "^$SCREEN connected")
+  if [ -n "$screen_active" ]; then
+    echo "$SCREEN"
+  fi
+}
+
+monitor_connected() {
+  MONITOR=''
+  for output in $1
+  do
+    active=$(connected "$output")
+    if [[ -n "$active" ]]; then
+      MONITOR=$output
+    fi
+  done
+  echo "$MONITOR"
+}
+
+output_left() { 
+  if [[ -n "$LEFT" ]]; then
+    if [[ "$MODE" == "demo" ]]; then
+      echo "--output $LEFT --mode 2560x1440 --rate 60 --rotation normal --pos 0x700"
+    else
+      echo "--output $LEFT --mode 3840x2160 --rate 60 --rotation normal --pos 0x700"
+    fi
+  fi
+}
+
+output_right() {
+  if [[ -n "$RIGHT" ]]; then
+    echo "--output $RIGHT --mode 3840x2160 --rate 60 --rotation left --pos 3840x0"
+  fi
+}
+
+LEFT=$(monitor_connected "${LEFT_AVAILABLE[*]}")
+RIGHT=$(monitor_connected "${RIGHT_AVAILABLE[*]}")
+RANDR_CMD="$RANDR_CMD $(output_laptop) $(output_left) $(output_right)"
+#echo $RANDR_CMD
+exec $RANDR_CMD &
