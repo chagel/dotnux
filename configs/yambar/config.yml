@@ -166,7 +166,7 @@ bar:
            conditions:
              id < 0:
                - string: {text: "\uf0d8"}
-               - string: {text: "{cpu:02}%"}
+               - string: {text: " {cpu:02}%"}
     - battery:
         name: BAT0
         poll-interval: 30000
@@ -178,16 +178,27 @@ bar:
             text: "\uf027 {sink_percent}% ({sink_port})"
             on-click: pavucontrol
 
-    # - network:
-    #     name: wlp2s0
-    #     poll-interval: 30000
-    #     content:
-    #       map:
-    #         default: 
-    #           - string: {text: , font: *awesome}
-    #           - string: {text: " {ssid}"}
-    #         conditions:
-    #           state == down: {string: {text: , font: *awesome}}
+    - network:
+        poll-interval: 1000
+        content:
+          map:
+            default: {empty: {}}
+            conditions:
+              name == wlp2s0:
+                map:
+                  default: {string: {text: , font: *awesome, foreground: ffffff66}}
+                  conditions:
+                    state == down: {string: {text: , font: *awesome, foreground: ff0000ff}}
+                    state == up:
+                      map:
+                        default:
+                          - string: {text: , font: *awesome}
+                          - string: {text: "  {ssid}"}
+
+                        conditions:
+                          ipv4 == "":
+                            - string: {text: , font: *awesome, foreground: ffffff66}
+                            - string: {text: "  {ssid}", foreground: ffffff66}
 
     - script:
         poll-interval: 1000

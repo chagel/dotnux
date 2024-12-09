@@ -52,7 +52,7 @@
 [socks]
 
 [commit]
-	; gpgsign = true
+	gpgsign = true
 
 [branch]
 	autosetuprebase = always
