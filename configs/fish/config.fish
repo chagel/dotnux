@@ -29,7 +29,7 @@ abbr dpaste curl -s -F 'content=<-' http://dpaste.com/api/v2/
 abbr e vim
 abbr f fzf
 abbr h history
-abbr install brew install
+abbr install sudo pacman -S
 abbr l ls -la
 abbr lg "ls -la | grep"
 abbr ll ls -lG
@@ -58,8 +58,9 @@ abbr tnt task add due:eod
 abbr tt task ls due.before:tomorrow
 abbr tw task ls due.before:soww
 abbr uc uncommitted
-abbr uninstall brew remove
-abbr upgrade-system brew upgrade
+abbr uninstall sudo pacman -R
+abbr upgrade-system sudo pacman -Syu
+abbr upgrade-aur sudo yay -Syu --devel --timeupdate
 abbr vg vim Gemfile
 abbr vim nvim
 abbr vit vim ~/.tmux.conf
