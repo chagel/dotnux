@@ -3,10 +3,12 @@ if status is-interactive
 end
 
 if status is-login
-    # Commands to run in login sessions can go here
+  if test (tty) = /dev/tty1
+    exec Hyprland > /dev/null 2>&1
+  end
 end
 
-fish_add_path $HOME/Dotmac/scripts
+fish_add_path $HOME/Dotnux/scripts
 
 abbr a gcalcli
 abbr aa gcalcli agenda
