@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Check if fuzzel is installed
+if ! command -v fuzzel &> /dev/null; then
+    echo "fuzzel could not be found, please install it."
+    exit 1
+fi
+
+# Get the list of executables from directories in $PATH using a single find command
+commands=$(find $(echo $PATH | tr ':' ' ') -maxdepth 1 -executable -type f 2>/dev/null | awk -F/ '{print $NF}' | sort | uniq)
+
+# Use fuzzel to select a command
+selected_command=$(echo "$commands" | fuzzel --prompt "Run: ")
+
+# If a command is selected, execute it
+if [ -n "$selected_command" ]; then
+    $selected_command &
+fi
+
+
