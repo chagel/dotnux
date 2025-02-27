@@ -11,7 +11,7 @@ bar:
   spacing: 15
   margin: 5
 
-  font: Terminess Nerd Font:style:Bold:pixelsize=22:antialias=true:autohint:true, Cantarell:pixelsize=16, Hiragino Sans GB W3:pixelsize=16, Symbols Nerd Font Mono:pixelsize=18
+  font: Terminess Nerd Font:style:Bold:pixelsize=18:antialias=true:autohint:true, Cantarell:pixelsize=16, Hiragino Sans GB W3:pixelsize=16, Symbols Nerd Font Mono:pixelsize=18
   background: 1e1e2e99
   foreground: f8f8f2ff
 
@@ -101,7 +101,6 @@ bar:
                 space_9_focused: { string: { text: "{space_9}", <<: *focused }}
                 space_9_occupied: { string: { text: "{space_9}", <<: *occupied }}
 
-  center:
     - script:
         poll-interval: 1000
         path: *bar_cmd
