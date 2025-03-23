@@ -1,17 +1,16 @@
-awesome: &awesome Symbols Nerd Font Mono:style=solid:pixelsize=18
-sans: &sans JetBrains Mono:pixelsize=17:style=semibold, Hiragino Sans GB W3:pixelsize=16
+awesome: &awesome Symbols Nerd Font Mono:style=solid:size=18
+sans: &sans JetBrains Mono:size=20:style=semibold, Hiragino Sans GB W3:size=18
 bar_cmd: &bar_cmd ~/Dotfiles/scripts/bars
 
 bar:
-  # monitor: DP-4
   monitor: eDP-1
   layer: bottom
-  height: 32
+  height: 40
   location: top
   spacing: 15
   margin: 5
 
-  font: Terminess Nerd Font:style:Bold:pixelsize=18:antialias=true:autohint:true, Cantarell:pixelsize=16, Hiragino Sans GB W3:pixelsize=16, Symbols Nerd Font Mono:pixelsize=18
+  font: Terminess Nerd Font:style:SemiBold:pixelsize=30:antialias=true:autohint:true, Cantarell:pixelsize=30, Hiragino Sans GB W3:pixelsize=30, Symbols Nerd Font Mono:pixelsize=30
   background: 1e1e2e99
   foreground: f8f8f2ff
 
