@@ -15,14 +15,6 @@ function load_api_keys --description "Load API keys from password store(1Passwor
     end
 end
 
-# Only load keys in interactive sessions
-if status is-interactive
-	load_api_keys
-end
-
-# Initialize rbenv
-status --is-interactive; and rbenv init - --no-rehash fish | source
-    
 if status is-login; and test -z "$DISPLAY"; and test (tty) = "/dev/tty1"
   exec Hyprland
 end
