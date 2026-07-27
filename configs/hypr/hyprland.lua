@@ -54,7 +54,9 @@ end)
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 
-hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
+-- "gtk3" makes Qt apps follow the GTK font/theme via xdg-desktop-portal-gtk,
+-- so they match GTK apps without a separate qt5ct/qt6ct config to maintain.
+hl.env("QT_QPA_PLATFORMTHEME", "gtk3")
 hl.env("QT_ENABLE_HIGHDPI_SCALING", "1")
 hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 hl.env("QT_SCALE_FACTOR", "2")
