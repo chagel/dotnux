@@ -1,3 +1,24 @@
 #!/bin/sh
 
-grimblast save area - | swappy -f -
+set -eu
+
+notify() {
+  command -v notify-send > /dev/null 2>&1 && notify-send -u critical screenshot "$1"
+  echo "screenshot: $1" >&2
+}
+
+for dep in grimblast swappy wl-copy; do
+  command -v $dep > /dev/null 2>&1 || {
+    notify "missing dependency: $dep"
+    exit 1
+  }
+done
+
+SHOT=$(mktemp -t screenshot-XXXXXX.png)
+trap 'rm -f $SHOT' EXIT
+
+# grimblast exits non-zero when the area selection is cancelled; skip swappy
+# rather than handing it an empty file
+grimblast save area $SHOT && [ -s $SHOT ] || exit 0
+
+swappy -f $SHOT

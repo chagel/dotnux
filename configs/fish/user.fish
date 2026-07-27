@@ -16,5 +16,5 @@ function load_api_keys --description "Load API keys from password store(1Passwor
 end
 
 if status is-login; and test -z "$DISPLAY"; and test (tty) = "/dev/tty1"
-  exec Hyprland
+  exec start-hyprland
 end

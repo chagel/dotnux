@@ -22,3 +22,5 @@ node_modules
 .solargraph.yml
 
 .avante_chat_history/
+
+**/.claude/settings.local.json
