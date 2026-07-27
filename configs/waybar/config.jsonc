@@ -3,7 +3,15 @@
 	"margin": "5 10 0 0",
 	"mod": "dock",
 	"modules-left": [
-		"hyprland/workspaces"
+		"custom/ws1",
+		"custom/ws2",
+		"custom/ws3",
+		"custom/ws4",
+		"custom/ws5",
+		"custom/ws6",
+		"custom/ws7",
+		"custom/ws8",
+		"custom/ws9"
 	],
 	"modules-center": [
 		"hyprland/window"
@@ -20,10 +28,82 @@
 	"hyprland/window": {
 		"format": "{}"
 	},
-	"hyprland/workspaces": {
-		"persistent-workspaces": {
-			"*": 5
-		}
+	// hyprland/workspaces is unusable on Lua-config Hyprland: its click handler
+	// sends the legacy "dispatch workspace N" string, which the Lua dispatcher
+	// rejects (Alexays/Waybar#5008). These custom modules dispatch the Lua form
+	// instead; `hyprws` prints their state and `hyprwsd` signals the refresh.
+	// Workspaces 6-9 hide themselves while unused.
+	"custom/ws1": {
+		"exec": "hyprws 1",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='1'})\""
+	},
+	"custom/ws2": {
+		"exec": "hyprws 2",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='2'})\""
+	},
+	"custom/ws3": {
+		"exec": "hyprws 3",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='3'})\""
+	},
+	"custom/ws4": {
+		"exec": "hyprws 4",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='4'})\""
+	},
+	"custom/ws5": {
+		"exec": "hyprws 5",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='5'})\""
+	},
+	"custom/ws6": {
+		"exec": "hyprws 6",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='6'})\""
+	},
+	"custom/ws7": {
+		"exec": "hyprws 7",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='7'})\""
+	},
+	"custom/ws8": {
+		"exec": "hyprws 8",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='8'})\""
+	},
+	"custom/ws9": {
+		"exec": "hyprws 9",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='9'})\""
 	},
 	"tray": {
 		"icon-size": 18,

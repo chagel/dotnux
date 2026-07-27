@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Waybar state for a single Hyprland workspace indicator.
+#
+# Stands in for waybar's own hyprland/workspaces module: its click handler
+# sends the legacy hyprlang string "dispatch workspace N", which a Lua-config
+# Hyprland (>= 0.55) rejects as a syntax error, so clicking does nothing.
+# See https://github.com/Alexays/Waybar/issues/5008.
+#
+# usage: hyprws <workspace-id>
+#
+# Prints one line of waybar JSON. Workspaces above $HYPRWS_PERSISTENT print
+# empty text when unused, which tells waybar to hide the module.
+
+ws=$1
+if [ -z "$ws" ]; then
+  echo "usage: hyprws <workspace-id>" >&2
+  exit 1
+fi
+
+# Always shown, even when empty — matches the old persistent-workspaces setting.
+persistent=${HYPRWS_PERSISTENT:-5}
+
+hyprctl --batch "j/monitors ; j/workspaces" | jq -s -c \
+  --argjson ws "$ws" --argjson persist "$persistent" '
+  . as [$mons, $spaces]
+  | ([$mons[] | select(.focused) | .activeWorkspace.id] | first) as $focused
+  | [$mons[].activeWorkspace.id]                                 as $visible
+  | (([$spaces[] | select(.id == $ws) | .windows] | first) // 0) as $windows
+  | if   $ws == $focused         then {text: ($ws|tostring), class: "active"}
+    elif ($visible | index($ws)) then {text: ($ws|tostring), class: "visible"}
+    elif $windows > 0            then {text: ($ws|tostring), class: "occupied"}
+    elif $ws <= $persist         then {text: ($ws|tostring), class: "empty"}
+    else {text: ""} end'
