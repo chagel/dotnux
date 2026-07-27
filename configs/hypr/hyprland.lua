@@ -40,6 +40,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hyprsleep")
     hl.exec_cmd("wlsunset -S 7:00 -s 18:30 -t 5000")
     hl.exec_cmd(bar)
+    hl.exec_cmd("hyprwsd") -- refreshes the bar's workspace indicators
     -- hl.exec_cmd("hyprpaper")
     -- hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
 end)

@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""Refresh waybar's workspace indicators on Hyprland workspace events.
+
+Companion to `hyprws`. The custom modules that replace hyprland/workspaces have
+no event source of their own, so this listens on Hyprland's event socket and
+pokes waybar with SIGRTMIN+n whenever workspace state changes.
+
+Started from hyprland.lua autostart; exits when the compositor goes away.
+"""
+
+import os
+import socket
+import subprocess
+import sys
+
+# Events that can change which workspaces exist, are focused, or hold windows.
+EVENTS = frozenset(
+    (
+        "workspace",
+        "workspacev2",
+        "createworkspace",
+        "createworkspacev2",
+        "destroyworkspace",
+        "destroyworkspacev2",
+        "moveworkspace",
+        "moveworkspacev2",
+        "focusedmon",
+        "focusedmonv2",
+        "openwindow",
+        "closewindow",
+        "movewindow",
+        "movewindowv2",
+    )
+)
+
+# Bursts of events (closing a window empties a workspace, etc.) collapse into a
+# single refresh once this much idle time passes.
+DEBOUNCE = 0.03
+
+
+def socket_path():
+    runtime = os.environ.get("XDG_RUNTIME_DIR")
+    signature = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+    if not runtime or not signature:
+        sys.exit("hyprwsd: not running under Hyprland")
+    return os.path.join(runtime, "hypr", signature, ".socket2.sock")
+
+
+def main():
+    signum = os.environ.get("HYPRWS_SIGNAL", "1")
+
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.connect(socket_path())
+
+    buf = b""
+    dirty = False
+
+    while True:
+        try:
+            data = sock.recv(4096)
+        except socket.timeout:
+            if dirty:
+                subprocess.run(["pkill", "-RTMIN+" + signum, "waybar"], check=False)
+                dirty = False
+            sock.settimeout(None)
+            continue
+
+        if not data:
+            break  # compositor gone
+
+        buf += data
+        *lines, buf = buf.split(b"\n")
+        for line in lines:
+            name = line.split(b">>", 1)[0].decode("utf-8", "replace")
+            if name in EVENTS:
+                dirty = True
+
+        if dirty:
+            sock.settimeout(DEBOUNCE)
+
+
+if __name__ == "__main__":
+    main()

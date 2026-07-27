@@ -20,33 +20,43 @@ tooltip label {
     color: #93B1A6;
 }
 
-#workspaces {
-    /* border-radius: 10px; */
-    margin: 0 0 0 10px;
-    background: #0F0F0F;
-}
-
-#workspaces button {
+/* Workspace indicators — custom/ws1..ws9, see config.jsonc */
+#custom-ws1,
+#custom-ws2,
+#custom-ws3,
+#custom-ws4,
+#custom-ws5,
+#custom-ws6,
+#custom-ws7,
+#custom-ws8,
+#custom-ws9 {
     min-width: 20px;
+    /* vertical padding replaces what the old GTK buttons contributed, so the
+       bar keeps its original height */
+    padding: 6px 4px;
     border-radius: 20px;
-    margin: 0 0 5px;
+    margin: 0 4px 5px 0;
+    background: #0F0F0F;
     color: #333333;
 }
 
-#workspaces button:not(:last-child) {
-    margin-right: 4px;
+#custom-ws1 {
+    margin-left: 10px;
 }
 
-#workspaces button:hover {
-    /* background: rgba(255, 255, 255, 0.08); */
-}
+/* .occupied (has windows) and .visible (shown on another monitor) are also set
+   on each indicator, unstyled here to keep the old flat look. */
 
-#workspaces button.active {
-    /* background: #CCCCCC; */
+#custom-ws1.active,
+#custom-ws2.active,
+#custom-ws3.active,
+#custom-ws4.active,
+#custom-ws5.active,
+#custom-ws6.active,
+#custom-ws7.active,
+#custom-ws8.active,
+#custom-ws9.active {
     color: #CCC;
-}
-
-#workspaces button.active:hover {
 }
 
 #clock,
