@@ -64,7 +64,6 @@ tooltip label {
 #pulseaudio,
 #network,
 #bluetooth,
-#temperature,
 #backlight {
     padding: 0px 14px;
     background-color: rgba(255, 255, 255, 0.08);
@@ -87,11 +86,18 @@ tooltip label {
     color: red;
 }
 
-#temperature.critical {
-    color: red;
-}
-
 #clock {
     padding-right: 16px;
     border-radius: 0 16px 16px 0;
+}
+
+/* The Shanghai clock sits mid-bar, so it must not take the rounded right edge
+   that closes the module group -- that belongs to the local clock alone.
+   #clock.shanghai outranks #clock on specificity, so order here does not matter. */
+#clock.shanghai {
+    border-radius: 0;
+    padding-right: 14px;
+    /* Dimmer than the bar's #CCCCCC so the foreign time reads as secondary
+       to the local clock next to it. */
+    color: #888888;
 }
