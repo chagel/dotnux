@@ -1,0 +1,198 @@
+// Shared waybar module definitions, pulled in by every bar in config.jsonc via
+// "include". Kept separate so the per-monitor bars do not each need their own
+// copy of these blocks -- only the modules-* arrays differ between them.
+{
+	"hyprland/window": {
+		"format": "{}"
+	},
+	// hyprland/workspaces is unusable on Lua-config Hyprland: its click handler
+	// sends the legacy "dispatch workspace N" string, which the Lua dispatcher
+	// rejects (Alexays/Waybar#5008). These custom modules dispatch the Lua form
+	// instead; `hyprws` prints their state and `hyprwsd` signals the refresh.
+	// HYPRWS_PERSISTENT=9 keeps every indicator visible even when its workspace
+	// is empty. Each bar only lists the range belonging to its own monitor, so
+	// nothing needs to auto-hide: 1-5 always show on the left, 6-9 on the right.
+	"custom/ws1": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 1",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='1'})\""
+	},
+	"custom/ws2": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 2",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='2'})\""
+	},
+	"custom/ws3": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 3",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='3'})\""
+	},
+	"custom/ws4": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 4",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='4'})\""
+	},
+	"custom/ws5": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 5",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='5'})\""
+	},
+	"custom/ws6": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 6",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='6'})\""
+	},
+	"custom/ws7": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 7",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='7'})\""
+	},
+	"custom/ws8": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 8",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='8'})\""
+	},
+	"custom/ws9": {
+		"exec": "HYPRWS_PERSISTENT=9 hyprws 9",
+		"return-type": "json",
+		"interval": "once",
+		"signal": 1,
+		"tooltip": false,
+		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='9'})\""
+	},
+	"tray": {
+		"icon-size": 18,
+		"spacing": 20
+	},
+	"network": {
+		"format-icons": [
+			"󰤟",
+			"󰤢",
+			"󰤥",
+			"󰤨"
+		],
+		"format-wifi": "{icon}",
+		"format-ethernet": "",
+		"format-linked": "󰄡",
+		"format-disconnected": "",
+		"tooltip-format": "{essid} ({signalStrength}%) - {gwaddr}",
+		"tooltip-format-ethernet": "{ifname} - {gwaddr}",
+		"tooltip-format-disconnected": "Disconnected"
+	},
+	"bluetooth": {
+		"format": "󰂯",
+		"format-disabled": "󰂲",
+		"format-connected": "󰂱 {num_connections}",
+		"tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+		"tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+		"tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+		"on-click": "bluetooth toggle"
+	},
+	"battery": {
+		"full-at": 95,
+		"states": {
+			"warning": 35,
+			"critical": 10
+		},
+		"format": "{icon}",
+		"format-plugged": "",
+		"format-charging": "󰂄",
+		"format-icons": [
+			"󰂎",
+			"󰁺",
+			"󰁻",
+			"󰁼",
+			"󰁽",
+			"󰁾",
+			"󰁿",
+			"󰂀",
+			"󰂁",
+			"󰂂",
+			"󰁹"
+		],
+		"tooltip-format": "{capacity}%"
+	},
+	"pulseaudio": {
+		"format": "{icon}  {volume}%",
+		"format-muted": "󰝟",
+		"on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+		"on-click-right": "pavucontrol",
+		"on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+		"on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+		"scroll-step": 5,
+		"format-icons": {
+			"headphone": "󱡏",
+			"hands-free": "󱡏",
+			"headset": "󱡏",
+			"default": [
+				"",
+				""
+			]
+		}
+	},
+	// Second clock pinned to China time while the system clock stays local.
+	// The part after "#" becomes a CSS class, so this styles as #clock.shanghai.
+	"clock#shanghai": {
+		"timezone": "Asia/Shanghai",
+		"format": "CST {:%I:%M %p}",
+		"tooltip-format": "{:%A %Y-%m-%d %I:%M %p %Z}"
+	},
+	"clock": {
+		"format": "{:%H:%M %a}",
+		"tooltip-format": "{calendar}",
+		"calendar": {
+			"format": {
+				"months": "<span color='#D3D04F'><b>{}</b></span>",
+				"days": "<span color='#93B1A6'><b>{}</b></span>",
+				"weekdays": "<span color='#8EAC50'><b>{}</b></span>",
+				"today": "<span color='#8EAC50'><b><u>{}</u></b></span>"
+			}
+		}
+	},
+	"backlight": {
+		"device": "intel_backlight",
+		"format": "{icon} {percent}%",
+		"format-icons": [
+			"󰃞",
+			"󰃟",
+			"󰃠"
+		],
+		"on-scroll-up": "brightnessctl set 10%+",
+		"on-scroll-down": "brightnessctl set 10%-",
+		"min-length": 6
+	},
+	"pulseaudio#microphone": {
+		"format": "{format_source}",
+		"format-source": " {volume}%",
+		"format-source-muted": " Muted",
+		"on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+		"on-click-right": "pavucontrol",
+		"on-scroll-up": "pactl set-source-volume @DEFAULT_SOURCE@ +5%",
+		"on-scroll-down": "pactl set-source-volume @DEFAULT_SOURCE@ -5%",
+		"scroll-step": 5
+	}
+}

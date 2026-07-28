@@ -298,16 +298,18 @@ hl.window_rule({
 })
 
 -- See https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
--- Both monitor variables were commented out in the old config, so these rules
--- (and the focusmonitor half of the number binds below) never took effect.
--- Set the outputs and uncomment to bind workspaces 1-5 / 6-9 to two monitors.
--- local monitor_left, monitor_right = "eDP-1", "DP-2"
--- for _, ws in ipairs({ 1, 2, 3, 4, 5 }) do
---     hl.workspace_rule({ workspace = ws, monitor = monitor_left,  default = ws == 1 })
--- end
--- for _, ws in ipairs({ 6, 7, 8, 9 }) do
---     hl.workspace_rule({ workspace = ws, monitor = monitor_right, default = ws == 6 })
--- end
+-- Pin workspaces 1-5 to the left panel and 6-9 to the right one. Without these
+-- rules Hyprland puts a new workspace on whichever monitor happens to be
+-- focused, so any number could land on either screen.
+-- `default = true` marks the workspace that monitor starts on: 1 for the left,
+-- 6 for the right. mon_left/mon_right are the description strings defined in
+-- the MONITORS section at the top of this file.
+for _, ws in ipairs({ 1, 2, 3, 4, 5 }) do
+    hl.workspace_rule({ workspace = ws, monitor = mon_left,  default = ws == 1 })
+end
+for _, ws in ipairs({ 6, 7, 8, 9 }) do
+    hl.workspace_rule({ workspace = ws, monitor = mon_right, default = ws == 6 })
+end
 
 
 ---------------------
@@ -379,9 +381,12 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 hl.bind("switch:on:Lid Switch",  hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', disabled = true })\""), { locked = true })
 hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', mode = '2560x1440@60', position = '0x3840', scale = 1.25 })\""), { locked = true })
 
--- Move windows to the monitor above/below with mainMod + SHIFT + [comma/period]
-hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.window.move({ monitor = "u" }))
-hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.move({ monitor = "d" }))
+-- Move windows to the monitor left/right with mainMod + SHIFT + [comma/period].
+-- These were "u"/"d" back when the externals were stacked vertically; the two
+-- panels now sit side by side, so up/down matches nothing and Hyprland reports
+-- "monitor not found". Directions are geometric, not a monitor list order.
+hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.window.move({ monitor = "l" }))
+hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.move({ monitor = "r" }))
 
 -- Layout manipulation
 hl.bind(mainMod .. " + SHIFT + space", hl.dsp.layout("orientationcycle"))

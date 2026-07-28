@@ -1,219 +1,75 @@
-{
-	"position": "top",
-	"margin": "5 10 0 0",
-	"mod": "dock",
-	"modules-left": [
-		"custom/ws1",
-		"custom/ws2",
-		"custom/ws3",
-		"custom/ws4",
-		"custom/ws5",
-		"custom/ws6",
-		"custom/ws7",
-		"custom/ws8",
-		"custom/ws9"
-	],
-	"modules-center": [
-		"hyprland/window"
-	],
-	"modules-right": [
-		"tray",
-		"network",
-		"bluetooth",
-		"battery",
-		"pulseaudio",
-		"clock#shanghai",
-		"clock"
-	],
-	"hyprland/window": {
-		"format": "{}"
-	},
-	// hyprland/workspaces is unusable on Lua-config Hyprland: its click handler
-	// sends the legacy "dispatch workspace N" string, which the Lua dispatcher
-	// rejects (Alexays/Waybar#5008). These custom modules dispatch the Lua form
-	// instead; `hyprws` prints their state and `hyprwsd` signals the refresh.
-	// Workspaces 6-9 hide themselves while unused.
-	"custom/ws1": {
-		"exec": "hyprws 1",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='1'})\""
-	},
-	"custom/ws2": {
-		"exec": "hyprws 2",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='2'})\""
-	},
-	"custom/ws3": {
-		"exec": "hyprws 3",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='3'})\""
-	},
-	"custom/ws4": {
-		"exec": "hyprws 4",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='4'})\""
-	},
-	"custom/ws5": {
-		"exec": "hyprws 5",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='5'})\""
-	},
-	"custom/ws6": {
-		"exec": "hyprws 6",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='6'})\""
-	},
-	"custom/ws7": {
-		"exec": "hyprws 7",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='7'})\""
-	},
-	"custom/ws8": {
-		"exec": "hyprws 8",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='8'})\""
-	},
-	"custom/ws9": {
-		"exec": "hyprws 9",
-		"return-type": "json",
-		"interval": "once",
-		"signal": 1,
-		"tooltip": false,
-		"on-click": "hyprctl dispatch \"hl.dsp.focus({workspace='9'})\""
-	},
-	"tray": {
-		"icon-size": 18,
-		"spacing": 20
-	},
-	"network": {
-		"format-icons": [
-			"󰤟",
-			"󰤢",
-			"󰤥",
-			"󰤨"
+// One bar per monitor, each showing only the workspaces pinned to it.
+//
+// Hyprland pins workspaces 1-5 to the left panel and 6-9 to the right (see the
+// workspace rules in configs/hypr/hyprland.lua) -- these bars mirror that split.
+// This used to be a single bar object with all nine ws modules and no "output"
+// key, which made waybar draw the identical bar on every monitor, so all nine
+// indicators appeared on both screens.
+//
+// "output" matches the monitor description, not DP-N, because the dock
+// renumbers its ports between reconnects. It must be the description verbatim
+// as `hyprctl monitors` prints it: waybar compares the whole string and
+// supports neither "*" wildcards nor Hyprland's "desc:" prefix -- either one
+// silently matches nothing and the bar just never appears.
+// Module definitions are shared via "include".
+//
+// Only the left bar carries the status modules: a tray on two bars means two
+// competing SNI hosts, and duplicate clocks/battery add nothing.
+[
+	{
+		"name": "left",
+		"output": [
+			"Dell Inc. DELL P2715Q 54KKD7AA486L",
+			"eDP-1"
 		],
-		"format-wifi": "{icon}",
-		"format-ethernet": "",
-		"format-linked": "󰄡",
-		"format-disconnected": "",
-		"tooltip-format": "{essid} ({signalStrength}%) - {gwaddr}",
-		"tooltip-format-ethernet": "{ifname} - {gwaddr}",
-		"tooltip-format-disconnected": "Disconnected"
-	},
-	"bluetooth": {
-		"format": "󰂯",
-		"format-disabled": "󰂲",
-		"format-connected": "󰂱 {num_connections}",
-		"tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
-		"tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
-		"tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-		"on-click": "bluetooth toggle"
-	},
-	"battery": {
-		"full-at": 95,
-		"states": {
-			"warning": 35,
-			"critical": 10
-		},
-		"format": "{icon}",
-		"format-plugged": "",
-		"format-charging": "󰂄",
-		"format-icons": [
-			"󰂎",
-			"󰁺",
-			"󰁻",
-			"󰁼",
-			"󰁽",
-			"󰁾",
-			"󰁿",
-			"󰂀",
-			"󰂁",
-			"󰂂",
-			"󰁹"
+		"include": [
+			"~/.config/waybar/modules.jsonc"
 		],
-		"tooltip-format": "{capacity}%"
-	},
-	"pulseaudio": {
-		"format": "{icon}  {volume}%",
-		"format-muted": "󰝟",
-		"on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-		"on-click-right": "pavucontrol",
-		"on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
-		"on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
-		"scroll-step": 5,
-		"format-icons": {
-			"headphone": "󱡏",
-			"hands-free": "󱡏",
-			"headset": "󱡏",
-			"default": [
-				"",
-				""
-			]
-		}
-	},
-	// Second clock pinned to China time while the system clock stays local.
-	// The part after "#" becomes a CSS class, so this styles as #clock.shanghai.
-	"clock#shanghai": {
-		"timezone": "Asia/Shanghai",
-		"format": "CST {:%I:%M %p}",
-		"tooltip-format": "{:%A %Y-%m-%d %I:%M %p %Z}"
-	},
-	"clock": {
-		"format": "{:%H:%M %a}",
-		"tooltip-format": "{calendar}",
-		"calendar": {
-			"format": {
-				"months": "<span color='#D3D04F'><b>{}</b></span>",
-				"days": "<span color='#93B1A6'><b>{}</b></span>",
-				"weekdays": "<span color='#8EAC50'><b>{}</b></span>",
-				"today": "<span color='#8EAC50'><b><u>{}</u></b></span>"
-			}
-		}
-	},
-	"backlight": {
-		"device": "intel_backlight",
-		"format": "{icon} {percent}%",
-		"format-icons": [
-			"󰃞",
-			"󰃟",
-			"󰃠"
+		"position": "top",
+		"margin": "5 10 0 0",
+		"mod": "dock",
+		"modules-left": [
+			"custom/ws1",
+			"custom/ws2",
+			"custom/ws3",
+			"custom/ws4",
+			"custom/ws5"
 		],
-		"on-scroll-up": "brightnessctl set 10%+",
-		"on-scroll-down": "brightnessctl set 10%-",
-		"min-length": 6
+		"modules-center": [
+			"hyprland/window"
+		],
+		"modules-right": [
+			"tray",
+			"network",
+			"bluetooth",
+			"battery",
+			"pulseaudio",
+			"clock#shanghai",
+			"clock"
+		]
 	},
-	"pulseaudio#microphone": {
-		"format": "{format_source}",
-		"format-source": " {volume}%",
-		"format-source-muted": " Muted",
-		"on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
-		"on-click-right": "pavucontrol",
-		"on-scroll-up": "pactl set-source-volume @DEFAULT_SOURCE@ +5%",
-		"on-scroll-down": "pactl set-source-volume @DEFAULT_SOURCE@ -5%",
-		"scroll-step": 5
+	{
+		"name": "right",
+		"output": [
+			"Dell Inc. DELL U2718Q 4K8X78A61P3L"
+		],
+		"include": [
+			"~/.config/waybar/modules.jsonc"
+		],
+		"position": "top",
+		"margin": "5 10 0 0",
+		"mod": "dock",
+		"modules-left": [
+			"custom/ws6",
+			"custom/ws7",
+			"custom/ws8",
+			"custom/ws9"
+		],
+		"modules-center": [
+			"hyprland/window"
+		],
+		"modules-right": [
+			"clock"
+		]
 	}
-}
+]
