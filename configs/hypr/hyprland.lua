@@ -231,8 +231,8 @@ hl.config({
         kb_options = "ctrl:nocaps",
         kb_rules   = "",
 
-        repeat_delay = 200,
-        repeat_rate  = 50,
+        repeat_delay = 300,
+        repeat_rate  = 30,
 
         follow_mouse = 1,
 
@@ -249,6 +249,13 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 -- Example per-device config
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 -- hl.device({ name = "epic-mouse-v1", sensitivity = -0.5 })
+
+-- The Moonlander remaps in firmware, so opt it out of the global kb_options
+-- (ctrl:nocaps) — otherwise capslock gets rewritten twice.
+-- Name must match `hyprctl devices` exactly; ZSA exposes several interfaces,
+-- so cover the keyboard ones.
+hl.device({ name = "zsa-technology-labs-moonlander-mark-i",          kb_options = "" })
+hl.device({ name = "zsa-technology-labs-moonlander-mark-i-keyboard", kb_options = "" })
 
 
 --------------------------------
