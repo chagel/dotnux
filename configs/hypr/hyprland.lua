@@ -6,8 +6,44 @@
 ------------------
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
-hl.monitor({ output = "eDP-1", mode = "2560x1440@60", position = "0x0",    scale = 1.25 })
-hl.monitor({ output = "DP-2",  mode = "highres",      position = "0x-2560", scale = 1, transform = 3 })
+--
+-- Two Dell 4K panels on the dock. Matched by description rather than DP-N:
+-- the dock renumbers its ports between reconnects (these have come up as
+-- DP-1, DP-2 and DP-4 at various times), so the port names are not stable.
+-- Run `hyprctl monitors` to see the current description strings.
+local mon_left  = "desc:Dell Inc. DELL P2715Q 54KKD7AA486L" -- landscape, left
+local mon_right = "desc:Dell Inc. DELL U2718Q 4K8X78A61P3L" -- portrait, right
+
+-- Left, landscape: native 3840x2160, unscaled, at the origin.
+hl.monitor({ output = mon_left, mode = "3840x2160@60", position = "0x0", scale = 1 })
+
+-- Right, portrait: 3840x2160 rotated to 2160x3840, unscaled. x = 3840 puts it
+-- flush against the left panel's right edge; both are top-aligned at y = 0.
+-- transform 1 is the orientation that comes out upright on these panels;
+-- transform 3 is the same axis rotated the other way and renders upside down.
+hl.monitor({ output = mon_right, mode = "3840x2160@60", position = "3840x0", scale = 1, transform = 1 })
+
+-- Laptop panel: 2560x1440 @ 1.25 -> 2048x1152 logical. Parked below both
+-- externals (the portrait one is 3840 tall) so nothing overlaps with the lid open.
+hl.monitor({ output = "eDP-1", mode = "2560x1440@60", position = "0x3840", scale = 1.25 })
+
+-- Every reload re-applies the rule above, switching the internal panel back on
+-- even when the lid is shut. The lid binds further down only fire on an actual
+-- open/close transition, so they cannot cover that case -- check the real state
+-- here and honour it at config-load time too.
+-- Missing/unreadable file (desktop, different ACPI name) reads as "open", which
+-- leaves the panel enabled: the safe default.
+local function lid_is_closed()
+    local f = io.open("/proc/acpi/button/lid/LID/state", "r")
+    if not f then return false end
+    local state = f:read("*a")
+    f:close()
+    return state:match("closed") ~= nil
+end
+
+if lid_is_closed() then
+    hl.monitor({ output = "eDP-1", disabled = true })
+end
 
 -- local main_monitor = "desc:Dell Inc. DELL S3422DWG BF60T63"
 -- hl.monitor({ output = main_monitor, mode = "3440x1440@60", position = "0x-1440", scale = 1 })
@@ -330,6 +366,18 @@ hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = tr
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+
+-- Lid switch. Closing the lid while docked turns the internal panel off so its
+-- workspaces migrate to the externals; opening it brings the panel back with
+-- the geometry from the MONITORS section. `locked = true` so these still fire
+-- while the screen is locked (closing the lid is a common way to lock).
+-- Undocked, Hyprland keeps the session on the only remaining output, so this is
+-- safe with no externals attached.
+-- NB: `hyprctl keyword` does NOT work under the Lua parser ("keyword can't work
+-- with non-legacy parsers"). `hyprctl eval` takes a Lua snippet and is the
+-- replacement -- use it for any runtime config change from a bind or script.
+hl.bind("switch:on:Lid Switch",  hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', disabled = true })\""), { locked = true })
+hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', mode = '2560x1440@60', position = '0x3840', scale = 1.25 })\""), { locked = true })
 
 -- Move windows to the monitor above/below with mainMod + SHIFT + [comma/period]
 hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.window.move({ monitor = "u" }))
