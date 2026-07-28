@@ -1,0 +1,20 @@
+[Desktop Entry]
+Name=Fcitx 5 Configuration
+Name[zh_CN]=Fcitx 5 配置
+GenericName=Input Method Configuration
+GenericName[zh_CN]=输入法配置
+Comment=Change Fcitx 5 Configuration
+Comment[zh_CN]=修改 Fcitx 5 配置
+Icon=fcitx
+# The config tool is a native Wayland Qt app, so it already picks the 1.25
+# monitor scale up from the compositor via QT_ENABLE_HIGHDPI_SCALING. The
+# global QT_SCALE_FACTOR=2 then multiplies on top of that, which is why its
+# fonts came out roughly twice the size they should be. GDK_SCALE goes too:
+# QT_QPA_PLATFORMTHEME=gtk3 makes Qt initialise GTK for theming, so GTK's own
+# scale leaks into the font metrics it reports back.
+# Same treatment as teams-for-linux.desktop. Unset rather than pinned to 1.25,
+# because unlike the XWayland apps here this one sees the real monitor scale.
+Exec=env -u QT_SCALE_FACTOR -u GDK_SCALE -u GDK_DPI_SCALE fcitx5-config-qt
+Type=Application
+Categories=Settings;
+NoDisplay=true
