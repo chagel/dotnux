@@ -40,4 +40,20 @@ if [ "$(count)" -eq 0 ]; then
   done
 else
   hyprctl dispatch "hl.dsp.workspace.toggle_special('$WS')" >/dev/null
+
+  # A floating window keeps its absolute coordinates when the special workspace
+  # follows focus to another monitor, and the two panels here differ in both
+  # size and orientation -- a spot centred on the 1728x3072 portrait one lands
+  # near (or past) the bottom edge of the 3072x1728 landscape one. Re-centre
+  # whenever it becomes visible. center() honours the bar's reserved strip, so
+  # this is not the same as computing the midpoint by hand.
+  shown=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .specialWorkspace.name')
+  if [ "$shown" = "special:$WS" ]; then
+    addr=$(hyprctl clients -j | jq -r --arg t "$TITLE" \
+      'first(.[] | select(.title == $t) | .address) // empty')
+    if [ -n "$addr" ]; then
+      hyprctl dispatch "hl.dsp.focus({ window = 'address:$addr' })" >/dev/null
+      hyprctl dispatch "hl.dsp.window.center()" >/dev/null
+    fi
+  fi
 fi
