@@ -455,15 +455,22 @@ hl.bind(mainMod .. " + F",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("hyprwin"))
 hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.window.cycle_next())
 
-hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + P",      hl.dsp.exec_cmd("drun"))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + B",      hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + N",      hl.dsp.exec_cmd(terminal .. " -T scratchpad -W 120x34 vim /home/mike/.scratch.note"))
+-- Scratch note. The flags are ghostty's, not foot's: `-T title -W COLSxROWS`
+-- was foot syntax left over from before `terminal` changed, and ghostty takes
+-- config keys as --key=value with `-e` before the command to run.
+-- --title is what the "scratchpad" window rule above matches on, and ghostty
+-- holds it fixed rather than letting vim rewrite it.
 hl.bind(mainMod .. " + O",      hl.dsp.exec_cmd("define"))
 hl.bind("Print", hl.dsp.exec_cmd("screenshot"))
 hl.bind("F4",    hl.dsp.exec_cmd("pavucontrol"))
 hl.bind("F10",   hl.dsp.exec_cmd("blueman-manager"))
+hl.bind("CONTROL + SHIFT + ALT + E", hl.dsp.exec_cmd(fileManager))
+hl.bind("CONTROL + SHIFT + ALT + B", hl.dsp.exec_cmd(browser))
 hl.bind("CONTROL + SHIFT + ALT + L", hl.dsp.exec_cmd("lock"))
+hl.bind("CONTROL + SHIFT + ALT + N", hl.dsp.exec_cmd(terminal .. " --title=scratchpad --window-width=120 --window-height=34 -e vim /home/mike/.scratch.note"))
 hl.bind("CONTROL + SHIFT + ALT + S", hl.dsp.exec_cmd("screenshot"))
-hl.bind("CONTROL + " .. mainMod .. " + ALT + Q", hl.dsp.exit())
+hl.bind("CONTROL + SHIFT + ALT + R", hl.dsp.exec_cmd("hyprctl reload"))
+hl.bind(mainMod .. " + SHIFT + grave", hl.dsp.exec_cmd("hyprdrop"))
+hl.bind("CONTROL + SHIFT + ALT + Q", hl.dsp.exit())
