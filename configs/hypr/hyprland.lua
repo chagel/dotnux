@@ -14,18 +14,30 @@
 local mon_left  = "desc:Dell Inc. DELL P2715Q 54KKD7AA486L" -- landscape, left
 local mon_right = "desc:Dell Inc. DELL U2718Q 4K8X78A61P3L" -- portrait, right
 
--- Left, landscape: native 3840x2160, unscaled, at the origin.
-hl.monitor({ output = mon_left, mode = "3840x2160@60", position = "0x0", scale = 1 })
+-- Both are 27" 4K, so ~163 physical DPI. Scale is the one lever that resizes
+-- every app at once; the effective DPI is 163 / scale:
+--   1.0  -> 163 DPI, everything ~59% of intended size (too small)
+--   1.25 -> 131 DPI  <- here
+--   1.5  -> 109 DPI, textbook comfortable but too big on these panels
+-- Nudge this single value rather than tuning per-app font sizes.
 
--- Right, portrait: 3840x2160 rotated to 2160x3840, unscaled. x = 3840 puts it
--- flush against the left panel's right edge; both are top-aligned at y = 0.
+-- Left, landscape: 3840x2160 @ 1.25 -> 3072x1728 logical, at the origin.
+hl.monitor({ output = mon_left, mode = "3840x2160@60", position = "0x0", scale = 1.25 })
+
+-- Right, portrait: rotated to 2160x3840, @ 1.25 -> 1728x3072 logical.
+-- x = 3072 is the left panel's logical width, so the two sit flush.
+-- y = -672 centres the tall panel on the short one: (1728 - 3072) / 2. Top
+-- edges do NOT line up, and that is deliberate -- at y = 0 the portrait panel
+-- hangs 1344px below the landscape one, which makes the mouse crossing feel
+-- wrong. Recompute this if either scale changes.
 -- transform 1 is the orientation that comes out upright on these panels;
 -- transform 3 is the same axis rotated the other way and renders upside down.
-hl.monitor({ output = mon_right, mode = "3840x2160@60", position = "3840x0", scale = 1, transform = 1 })
+hl.monitor({ output = mon_right, mode = "3840x2160@60", position = "3072x-672", scale = 1.25, transform = 1 })
 
--- Laptop panel: 2560x1440 @ 1.25 -> 2048x1152 logical. Parked below both
--- externals (the portrait one is 3840 tall) so nothing overlaps with the lid open.
-hl.monitor({ output = "eDP-1", mode = "2560x1440@60", position = "0x3840", scale = 1.25 })
+-- Laptop panel: 2560x1440 @ 1.25 -> 2048x1152 logical. Sits directly below the
+-- left panel (y = 1728 is its bottom edge). Its 2048 width stops well short of
+-- the portrait panel at x = 3072, so there is no overlap and no dead gap.
+hl.monitor({ output = "eDP-1", mode = "2560x1440@60", position = "0x1728", scale = 1.25 })
 
 -- Every reload re-applies the rule above, switching the internal panel back on
 -- even when the lid is shut. The lid binds further down only fire on an actual
@@ -61,7 +73,11 @@ end
 ---------------------
 
 local terminal    = "ghostty"
-local browser     = "google-chrome-stable --force-device-scale-factor=1.2"
+-- No --force-device-scale-factor: chrome-flags.conf runs Chrome native Wayland
+-- (--ozone-platform-hint=auto), so it picks up the monitor scale from the
+-- compositor. Forcing a factor here overrides that and fights whatever the
+-- panel is actually set to -- the old 1.2 was sized for the laptop screen.
+local browser     = "google-chrome-stable"
 local bar         = "waybar"
 local fileManager = "nautilus"
 
@@ -386,7 +402,7 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 -- with non-legacy parsers"). `hyprctl eval` takes a Lua snippet and is the
 -- replacement -- use it for any runtime config change from a bind or script.
 hl.bind("switch:on:Lid Switch",  hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', disabled = true })\""), { locked = true })
-hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', mode = '2560x1440@60', position = '0x3840', scale = 1.25 })\""), { locked = true })
+hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', mode = '2560x1440@60', position = '0x1728', scale = 1.25 })\""), { locked = true })
 
 -- Move windows to the monitor left/right with mainMod + SHIFT + [comma/period].
 -- These were "u"/"d" back when the externals were stacked vertically; the two
