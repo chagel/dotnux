@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Quake-style dropdown terminal on a Hyprland special workspace.
+#
+# Ghostty's own quick terminal needs the GlobalShortcuts portal, which refuses
+# apps it cannot identify ("An app id is required") -- ghostty spawned from
+# hl.exec_cmd has no systemd scope to derive an app id from, so that route is a
+# dead end without reworking how the session launches apps. A special workspace
+# gives the same toggle behaviour with Hyprland owning both key and window.
+#
+# The terminal is spawned on first use rather than at login, so it costs
+# nothing until asked for. A window rule keyed on the title parks it on the
+# special workspace; see hypr/hyprland.lua.
+
+set -eu
+
+WS=term
+TITLE=dropterm
+
+count() {
+  hyprctl clients -j | jq --arg t "$TITLE" '[.[] | select(.title == $t)] | length'
+}
+
+if [ "$(count)" -eq 0 ]; then
+  # The window rule drops it straight onto special:term and reveals it, so
+  # there is no toggle here -- toggling as well would immediately hide it.
+  # Size in cells via ghostty's own flags. A `size` window rule would adapt to
+  # the monitor, but the Lua API does not document size/move for window rules
+  # and the percentage form is silently ignored.
+  hyprctl dispatch \
+    "hl.dsp.exec_cmd('ghostty --title=$TITLE --window-width=140 --window-height=22')" >/dev/null
+
+  # Wait for it to map, otherwise a fast second press sees count 0 and spawns
+  # a duplicate. Give up after ~3s and let the next press handle it.
+  i=0
+  while [ "$i" -lt 30 ]; do
+    [ "$(count)" -gt 0 ] && break
+    sleep 0.1
+    i=$((i + 1))
+  done
+else
+  hyprctl dispatch "hl.dsp.workspace.toggle_special('$WS')" >/dev/null
+fi

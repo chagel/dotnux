@@ -7,3 +7,19 @@ adjust-cell-height = "5%"
 window-padding-x = 10
 window-padding-y = 5
 window-padding-balance = true
+
+# Quake-style dropdown terminal. On Wayland ghostty cannot grab a hotkey by
+# itself, so `global:` registers the shortcut through the
+# org.freedesktop.portal.GlobalShortcuts portal (needs
+# xdg-desktop-portal-hyprland) and Hyprland binds a key to it via the `global`
+# dispatcher -- see the SUPER+grave bind in hypr/hyprland.lua. The trigger
+# named here is what the portal advertises; the key that actually fires it is
+# the one Hyprland binds. GTK support for `global:` landed in ghostty 1.2.0.
+# The key is "backquote", not "grave" -- ghostty rejects the latter with
+# error.InvalidFormat, which it reports without naming the offending key.
+keybind = global:super+backquote=toggle_quick_terminal
+
+quick-terminal-position = top
+quick-terminal-screen = mouse
+quick-terminal-autohide = true
+quick-terminal-animation-duration = 0.15

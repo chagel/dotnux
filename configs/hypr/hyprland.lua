@@ -288,6 +288,25 @@ hl.window_rule({ match = { class = "blueman-manager" },               float = tr
 hl.window_rule({ match = { title = "Clocks" },                        float = true })
 
 hl.window_rule({
+    name  = "dropterm",
+    match = { title = "dropterm" },
+
+    -- Dropdown terminal, toggled by SUPER+grave via the hyprdrop script.
+    -- Parking it on a special workspace is what makes it a dropdown: special
+    -- workspaces overlay the current one and toggle in and out without
+    -- disturbing the tiling underneath.
+    workspace = "special:term",
+
+    -- Float instead of tiling: tiled it filled the whole portrait panel
+    -- (1704x3004), unusable as a dropdown. The size comes from ghostty's
+    -- --window-width/--window-height in hyprdrop rather than a `size` rule --
+    -- the Lua API does not document size/move for window rules and a
+    -- "90% 40%" string was silently ignored, leaving ghostty's 800x600 default.
+    float  = true,
+    center = true,
+})
+
+hl.window_rule({
     name  = "scratchpad",
     match = { title = "scratchpad" },
 
