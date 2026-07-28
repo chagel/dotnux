@@ -69,7 +69,7 @@
 			"hyprland/window"
 		],
 		"modules-right": [
-			"clock"
+			"clock#date"
 		]
 	}
 ]

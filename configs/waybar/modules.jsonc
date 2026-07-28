@@ -173,6 +173,23 @@
 			}
 		}
 	},
+	// Clock with the date spelled out, for the right bar. A separate module
+	// rather than a format change on "clock", because both bars include this
+	// file and editing "clock" would move the date onto the left bar too --
+	// where it sits next to the Shanghai clock and a full status group.
+	// Styles as #clock.date, so it inherits every #clock rule in style.css.
+	"clock#date": {
+		"format": "{:%H:%M  %a %b %d}",
+		"tooltip-format": "{calendar}",
+		"calendar": {
+			"format": {
+				"months": "<span color='#D3D04F'><b>{}</b></span>",
+				"days": "<span color='#93B1A6'><b>{}</b></span>",
+				"weekdays": "<span color='#8EAC50'><b>{}</b></span>",
+				"today": "<span color='#8EAC50'><b><u>{}</u></b></span>"
+			}
+		}
+	},
 	"backlight": {
 		"device": "intel_backlight",
 		"format": "{icon} {percent}%",
