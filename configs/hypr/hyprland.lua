@@ -411,17 +411,27 @@ hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ ou
 hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.window.move({ monitor = "l" }))
 hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.move({ monitor = "r" }))
 
--- Layout manipulation
-hl.bind(mainMod .. " + SHIFT + space", hl.dsp.layout("orientationcycle"))
-hl.bind(mainMod .. " + space",         hl.dsp.layout("swapwithmaster"))
+-- Layout manipulation. These must match general:layout, which is dwindle.
+-- They used to call orientationcycle and swapwithmaster -- both are master-only
+-- messages, so under dwindle they failed with "Unknown dwindle layoutmsg" and
+-- the binds did nothing. dwindle accepts only togglesplit, swapsplit,
+-- movetoroot and preselect; swap these back if the layout ever changes.
+-- movetoroot promotes the focused window to the root of the split tree, which
+-- is the closest dwindle has to "swap with master".
+hl.bind(mainMod .. " + SHIFT + space", hl.dsp.layout("swapsplit"))
+hl.bind(mainMod .. " + space",         hl.dsp.layout("movetoroot"))
 
 -- Window manipulation
 hl.bind(mainMod .. " + C",         hl.dsp.window.center())
 hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mainMod .. " + F",         hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + TAB",         hl.dsp.window.cycle_next())
-hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.window.cycle_next({ next = false }))
+-- TAB opens a fuzzel picker listing every window on every workspace. Hyprland's
+-- cycle_next only walks the current workspace, so with workspaces pinned per
+-- monitor it can never reach the other screen -- fine as a two-window toggle,
+-- useless as a general switcher. SHIFT+TAB keeps the in-workspace cycle.
+hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("hyprwin"))
+hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.window.cycle_next())
 
 hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + P",      hl.dsp.exec_cmd("drun"))

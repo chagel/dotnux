@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Window switcher across every workspace, picked through fuzzel.
+#
+# Hyprland's own cyclenext walks only the windows on the *current* workspace.
+# With workspaces pinned per monitor (1-5 left, 6-9 right) that means it can
+# never reach anything on the other screen, so it is useless as a general
+# "switch to that window" key. This lists every window on every workspace.
+#
+# Each fuzzel line is "<address>\t<label>": --with-nth 2 displays only the
+# label and --accept-nth 1 hands the address back, so the raw address is never
+# shown. @tsv keeps one record per line even if a title contains a tab or
+# newline, which would otherwise split the line and desync the columns.
+
+set -eu
+
+sel=$(
+  hyprctl clients -j | jq -r '
+    [ .[] | select(.workspace.id > 0 and .mapped) ]
+    | sort_by(.workspace.id, .class)
+    | .[]
+    | [ .address, "[\(.workspace.id)] \(.class): \(.title)" ]
+    | @tsv
+  ' | fuzzel --dmenu --with-nth 2 --accept-nth 1 --prompt "window> "
+) || exit 0
+
+# Empty when the picker was dismissed with Escape.
+[ -n "$sel" ] || exit 0
+
+# hyprctl dispatch takes Lua under the >= 0.55 parser; the legacy
+# "dispatch focuswindow address:0x..." string form is rejected outright.
+hyprctl dispatch "hl.dsp.focus({ window = 'address:$sel' })" >/dev/null
