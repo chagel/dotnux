@@ -455,7 +455,7 @@ hl.bind(mainMod .. " + F",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("hyprwin"))
 hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.window.cycle_next())
 
-hl.bind(mainMod .. " + P",      hl.dsp.exec_cmd("drun"))
+hl.bind(mainMod .. " + SHIFT + grave", hl.dsp.exec_cmd("drun"))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 -- Scratch note. The flags are ghostty's, not foot's: `-T title -W COLSxROWS`
 -- was foot syntax left over from before `terminal` changed, and ghostty takes
@@ -472,5 +472,8 @@ hl.bind("CONTROL + SHIFT + ALT + L", hl.dsp.exec_cmd("lock"))
 hl.bind("CONTROL + SHIFT + ALT + N", hl.dsp.exec_cmd(terminal .. " --title=scratchpad --window-width=120 --window-height=34 -e vim /home/mike/.scratch.note"))
 hl.bind("CONTROL + SHIFT + ALT + S", hl.dsp.exec_cmd("screenshot"))
 hl.bind("CONTROL + SHIFT + ALT + R", hl.dsp.exec_cmd("hyprctl reload"))
-hl.bind(mainMod .. " + SHIFT + grave", hl.dsp.exec_cmd("hyprdrop"))
+-- SUPER+| -- "|" is shift+backslash, so the bind is SHIFT plus the backslash
+-- keysym. Binding the "bar" keysym without SHIFT in the modmask would be
+-- unproducible: you cannot type | without holding shift.
+hl.bind(mainMod .. " + SHIFT + backslash", hl.dsp.exec_cmd("hyprdrop"))
 hl.bind("CONTROL + SHIFT + ALT + Q", hl.dsp.exit())
