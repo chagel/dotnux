@@ -247,8 +247,11 @@ hl.config({
         kb_options = "ctrl:nocaps",
         kb_rules   = "",
 
-        repeat_delay = 300,
-        repeat_rate  = 30,
+        -- repeat_delay: ms held before a key starts repeating -- this is the
+        -- one that reads as "sticky" when it is too high. repeat_rate: repeats
+        -- per second once it has started. 300/30 was noticeably sluggish.
+        repeat_delay = 200,
+        repeat_rate  = 50,
 
         follow_mouse = 1,
 
