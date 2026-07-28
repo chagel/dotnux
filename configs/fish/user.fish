@@ -16,5 +16,9 @@ function load_api_keys --description "Load API keys from password store(1Passwor
 end
 
 if status is-login; and test -z "$DISPLAY"; and test (tty) = "/dev/tty1"
+  # Kaby Lake UHD 620 + dock: mesa hands aquamarine Y_TILED_CCS buffers that the
+  # kernel rejects on the dock's DP connector, and Hyprland segfaults in
+  # SDRMConnector::releaseStashedCommit while adding the monitor. Force linear.
+  set -gx AQ_NO_MODIFIERS 1
   exec start-hyprland
 end

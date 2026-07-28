@@ -1,0 +1,17 @@
+[Desktop Entry]
+Name=Zoom Workplace
+Comment=Zoom Video Conference
+# Zoom is a Qt/X11 app, so it runs under XWayland and never sees the eDP-1
+# monitor scale. The global QT_SCALE_FACTOR=2 from hyprland.lua then blows it
+# up to double size. Pin it to the panel's actual 1.25 scale instead, the same
+# fix as wechat-universal.desktop.
+Exec=env QT_SCALE_FACTOR=1.25 /usr/bin/zoom %U
+Icon=Zoom
+Terminal=false
+Type=Application
+Encoding=UTF-8
+Categories=Network;Application;
+StartupWMClass=zoom
+MimeType=x-scheme-handler/zoommtg;x-scheme-handler/zoomus;x-scheme-handler/tel;x-scheme-handler/callto;x-scheme-handler/zoomphonecall;x-scheme-handler/zoomphonesms;x-scheme-handler/zoomcontactcentercall;application/x-zoom
+X-KDE-Protocols=zoommtg;zoomus;tel;callto;zoomphonecall;zoomphonesms;zoomcontactcentercall;
+Name[en_US]=Zoom Workplace
