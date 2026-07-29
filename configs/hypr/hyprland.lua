@@ -397,9 +397,6 @@ hl.bind(mainMod .. " + SHIFT + space", hl.dsp.layout("swapsplit"))
 hl.bind(mainMod .. " + space",         hl.dsp.layout("movetoroot"))
 
 -- Window manipulation
--- macOS CMD habit: forward the CTRL equivalent to the focused window.
-hl.bind(mainMod .. " + T", hl.dsp.send_shortcut({ mods = "CONTROL", key = "T", window = "activewindow" }))
-hl.bind(mainMod .. " + W", hl.dsp.send_shortcut({ mods = "CONTROL", key = "W", window = "activewindow" }))
 hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mainMod .. " + F",         hl.dsp.window.float({ action = "toggle" }))
