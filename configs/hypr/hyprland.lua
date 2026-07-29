@@ -52,10 +52,7 @@ end
 ---------------------
 
 local terminal    = "ghostty"
--- No --force-device-scale-factor: chrome-flags.conf runs Chrome native Wayland
--- (--ozone-platform-hint=auto), so it picks up the monitor scale from the
--- compositor. Forcing a factor here overrides that and fights whatever the
--- panel is actually set to -- the old 1.2 was sized for the laptop screen.
+-- Scale flags live in configs/chrome-flags.conf: read on every launch path.
 local browser     = "google-chrome-stable"
 local bar         = "waybar"
 local fileManager = "nautilus"
@@ -248,10 +245,8 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 -- hl.device({ name = "epic-mouse-v1", sensitivity = -0.5 })
 
--- The Moonlander remaps in firmware, so opt it out of the global kb_options
--- (ctrl:nocaps) — otherwise capslock gets rewritten twice.
--- Name must match `hyprctl devices` exactly; ZSA exposes several interfaces,
--- so cover the keyboard ones.
+-- Moonlander remaps in firmware; opt it out of ctrl:nocaps or capslock is
+-- rewritten twice. Names must match `hyprctl devices` exactly.
 hl.device({ name = "zsa-technology-labs-moonlander-mark-i",          kb_options = "" })
 hl.device({ name = "zsa-technology-labs-moonlander-mark-i-keyboard", kb_options = "" })
 
@@ -270,19 +265,12 @@ hl.window_rule({
     name  = "dropterm",
     match = { title = "dropterm" },
 
-    -- Dropdown terminal, toggled by SUPER+grave via the hyprdrop script.
-    -- Parking it on a special workspace is what makes it a dropdown: special
-    -- workspaces overlay the current one and toggle in and out without
-    -- disturbing the tiling underneath.
+    -- Dropdown terminal (scripts/hyprdrop). The special workspace is what makes
+    -- it a dropdown. Size comes from ghostty's flags: `size` rules are silently
+    -- ignored by the Lua API.
     workspace = "special:term",
-
-    -- Float instead of tiling: tiled it filled the whole portrait panel
-    -- (1704x3004), unusable as a dropdown. The size comes from ghostty's
-    -- --window-width/--window-height in hyprdrop rather than a `size` rule --
-    -- the Lua API does not document size/move for window rules and a
-    -- "90% 40%" string was silently ignored, leaving ghostty's 800x600 default.
-    float  = true,
-    center = true,
+    float     = true,
+    center    = true,
 })
 
 hl.window_rule({
@@ -321,13 +309,8 @@ hl.window_rule({
     no_focus = true,
 })
 
--- See https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
--- Pin workspaces 1-5 to the left panel and 6-9 to the right one. Without these
--- rules Hyprland puts a new workspace on whichever monitor happens to be
--- focused, so any number could land on either screen.
--- `default = true` marks the workspace that monitor starts on: 1 for the left,
--- 6 for the right. mon_left/mon_right are the description strings defined in
--- the MONITORS section at the top of this file.
+-- Pin 1-5 to the left panel, 6-9 to the right; without these a new workspace
+-- lands on whichever monitor has focus. `default` = the monitor's start workspace.
 for _, ws in ipairs({ 1, 2, 3, 4, 5 }) do
     hl.workspace_rule({ workspace = ws, monitor = mon_left,  default = ws == 1 })
 end
