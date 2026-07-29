@@ -357,11 +357,12 @@ hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.resize({ x = 50,  y = 0,  relat
 hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.resize({ x = 0,   y = 50, relative = true }), { repeating = true })
 hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.resize({ x = 0,   y = -50, relative = true }), { repeating = true })
 
--- Switch workspaces with mainMod + [1-9]
--- Move the active window to a workspace with mainMod + SHIFT + [1-9]
+-- CONTROL switches workspace; mainMod forwards ALT+<digit> to the focused
+-- window (the macOS CMD+[1-9] habit); mainMod+SHIFT moves the window.
 for i = 1, 9 do
-    hl.bind(mainMod .. " + " .. i,           hl.dsp.focus({ workspace = i }))
+    hl.bind(mainMod .. " + " .. i,           hl.dsp.send_shortcut({ mods = "ALT", key = tostring(i), window = "activewindow" }))
     hl.bind(mainMod .. " + SHIFT + " .. i,   hl.dsp.window.move({ workspace = i }))
+    hl.bind("CONTROL + " .. i,               hl.dsp.focus({ workspace = i }))
 end
 
 hl.bind(mainMod .. " + 0",         hl.dsp.workspace.toggle_special("magic"))
@@ -375,13 +376,17 @@ hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
--- Laptop multimedia keys for volume and LCD brightness.
--- These use pactl, not wpctl: this machine runs the classic PulseAudio daemon,
--- so wireplumber (which ships wpctl) is not installed and wpctl binds fail
--- silently. @DEFAULT_SINK@/@DEFAULT_SOURCE@ are pactl's names for the current
--- default devices, so the binds follow headphone/dock switches.
+-- pactl, not wpctl: audio is classic PulseAudio here. @DEFAULT_SINK@ follows
+-- headphone/dock switches.
 hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"),      { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"),      { locked = true, repeating = true })
+
+-- Volume chords for keyboards without media keys. Bound twice per direction:
+-- SHIFT changes what the key emits (- -> underscore, = -> plus).
+hl.bind("CONTROL + SHIFT + ALT + underscore", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"), { locked = true, repeating = true })
+hl.bind("CONTROL + SHIFT + ALT + minus",      hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"), { locked = true, repeating = true })
+hl.bind("CONTROL + SHIFT + ALT + plus",       hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"), { locked = true, repeating = true })
+hl.bind("CONTROL + SHIFT + ALT + equal",      hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"), { locked = true, repeating = true })
 hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"),     { locked = true, repeating = true })
 hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("pactl set-source-mute @DEFAULT_SOURCE@ toggle"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl s 10%+"),                        { locked = true, repeating = true })
@@ -393,66 +398,46 @@ hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
--- Lid switch. Closing the lid while docked turns the internal panel off so its
--- workspaces migrate to the externals; opening it brings the panel back with
--- the geometry from the MONITORS section. `locked = true` so these still fire
--- while the screen is locked (closing the lid is a common way to lock).
--- Undocked, Hyprland keeps the session on the only remaining output, so this is
--- safe with no externals attached.
--- NB: `hyprctl keyword` does NOT work under the Lua parser ("keyword can't work
--- with non-legacy parsers"). `hyprctl eval` takes a Lua snippet and is the
--- replacement -- use it for any runtime config change from a bind or script.
+-- Lid switch turns the internal panel off/on. `locked` so it fires on the lock
+-- screen. NB: `hyprctl keyword` is a no-op under the Lua parser -- use `eval`.
 hl.bind("switch:on:Lid Switch",  hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', disabled = true })\""), { locked = true })
-hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', mode = '2560x1440@60', position = '0x1728', scale = 1.25 })\""), { locked = true })
+hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("hyprctl eval \"hl.monitor({ output = 'eDP-1', mode = '2560x1440@60', position = '0x2160', scale = 1.25 })\""), { locked = true })
 
--- Move windows to the monitor left/right with mainMod + SHIFT + [comma/period].
--- These were "u"/"d" back when the externals were stacked vertically; the two
--- panels now sit side by side, so up/down matches nothing and Hyprland reports
--- "monitor not found". Directions are geometric, not a monitor list order.
+-- Move a window to the monitor left/right. Directions are geometric, so these
+-- must match how the panels are actually laid out.
 hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.window.move({ monitor = "l" }))
 hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.move({ monitor = "r" }))
 
--- Layout manipulation. These must match general:layout, which is dwindle.
--- They used to call orientationcycle and swapwithmaster -- both are master-only
--- messages, so under dwindle they failed with "Unknown dwindle layoutmsg" and
--- the binds did nothing. dwindle accepts only togglesplit, swapsplit,
--- movetoroot and preselect; swap these back if the layout ever changes.
--- movetoroot promotes the focused window to the root of the split tree, which
--- is the closest dwindle has to "swap with master".
+-- Must match general:layout. dwindle accepts only togglesplit, swapsplit,
+-- movetoroot and preselect; master-only messages fail silently.
 hl.bind(mainMod .. " + SHIFT + space", hl.dsp.layout("swapsplit"))
 hl.bind(mainMod .. " + space",         hl.dsp.layout("movetoroot"))
 
 -- Window manipulation
-hl.bind(mainMod .. " + C",         hl.dsp.window.center())
+-- macOS CMD habit: forward the CTRL equivalent to the focused window.
+hl.bind(mainMod .. " + T", hl.dsp.send_shortcut({ mods = "CONTROL", key = "T", window = "activewindow" }))
+hl.bind(mainMod .. " + W", hl.dsp.send_shortcut({ mods = "CONTROL", key = "W", window = "activewindow" }))
 hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mainMod .. " + F",         hl.dsp.window.float({ action = "toggle" }))
--- TAB opens a fuzzel picker listing every window on every workspace. Hyprland's
--- cycle_next only walks the current workspace, so with workspaces pinned per
--- monitor it can never reach the other screen -- fine as a two-window toggle,
--- useless as a general switcher. SHIFT+TAB keeps the in-workspace cycle.
+-- fuzzel picker over every workspace; cycle_next only walks the current one,
+-- which cannot reach the other monitor. SHIFT+TAB keeps that in-workspace cycle.
 hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("hyprwin"))
 hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.window.cycle_next())
 
 hl.bind(mainMod .. " + SHIFT + grave", hl.dsp.exec_cmd("drun"))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
--- Scratch note. The flags are ghostty's, not foot's: `-T title -W COLSxROWS`
--- was foot syntax left over from before `terminal` changed, and ghostty takes
--- config keys as --key=value with `-e` before the command to run.
--- --title is what the "scratchpad" window rule above matches on, and ghostty
--- holds it fixed rather than letting vim rewrite it.
 hl.bind(mainMod .. " + O",      hl.dsp.exec_cmd("define"))
 hl.bind("Print", hl.dsp.exec_cmd("screenshot"))
 hl.bind("F4",    hl.dsp.exec_cmd("pavucontrol"))
 hl.bind("F10",   hl.dsp.exec_cmd("blueman-manager"))
+hl.bind("CONTROL + SHIFT + ALT + C", hl.dsp.window.center())
 hl.bind("CONTROL + SHIFT + ALT + E", hl.dsp.exec_cmd(fileManager))
 hl.bind("CONTROL + SHIFT + ALT + B", hl.dsp.exec_cmd(browser))
 hl.bind("CONTROL + SHIFT + ALT + L", hl.dsp.exec_cmd("lock"))
 hl.bind("CONTROL + SHIFT + ALT + N", hl.dsp.exec_cmd(terminal .. " --title=scratchpad --window-width=120 --window-height=34 -e vim /home/mike/.scratch.note"))
 hl.bind("CONTROL + SHIFT + ALT + S", hl.dsp.exec_cmd("screenshot"))
 hl.bind("CONTROL + SHIFT + ALT + R", hl.dsp.exec_cmd("hyprctl reload"))
--- SUPER+| -- "|" is shift+backslash, so the bind is SHIFT plus the backslash
--- keysym. Binding the "bar" keysym without SHIFT in the modmask would be
--- unproducible: you cannot type | without holding shift.
+-- SUPER+| -- bound as SHIFT+backslash; the "bar" keysym alone is unproducible.
 hl.bind(mainMod .. " + SHIFT + backslash", hl.dsp.exec_cmd("hyprdrop"))
 hl.bind("CONTROL + SHIFT + ALT + Q", hl.dsp.exit())
