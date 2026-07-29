@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Teams for Linux
-Exec=env -u GDK_SCALE -u GDK_DPI_SCALE -u QT_SCALE_FACTOR /opt/teams-for-linux/teams-for-linux --ozone-platform-hint=auto --enable-wayland-ime %U
+Exec=env -u GDK_SCALE -u GDK_DPI_SCALE -u QT_SCALE_FACTOR /opt/teams-for-linux/teams-for-linux --ozone-platform-hint=auto --enable-wayland-ime --force-device-scale-factor=1.25 %U
 Terminal=false
 Type=Application
 Icon=teams-for-linux
