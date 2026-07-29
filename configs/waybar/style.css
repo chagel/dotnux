@@ -69,10 +69,8 @@ tooltip label {
     background-color: rgba(255, 255, 255, 0.08);
 }
 
-#tray {
-    padding: 0px 16px;
-}
-
+/* #network opens the status group, so it carries the rounded left edge that
+   #clock closes on the right. */
 #network {
     border-radius: 28px 0 0 28px;
     padding-left: 24px;

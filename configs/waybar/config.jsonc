@@ -13,8 +13,9 @@
 // silently matches nothing and the bar just never appears.
 // Module definitions are shared via "include".
 //
-// Only the left bar carries the status modules: a tray on two bars means two
-// competing SNI hosts, and duplicate clocks/battery add nothing.
+// Only the left bar carries the status modules -- duplicate clocks, battery and
+// network readouts on both screens add noise without information. The right bar
+// keeps a clock so it is not bare.
 [
 	{
 		"name": "left",
@@ -39,7 +40,6 @@
 			"hyprland/window"
 		],
 		"modules-right": [
-			"tray",
 			"network",
 			"bluetooth",
 			"battery",
