@@ -158,7 +158,7 @@
 		"tooltip-format": "{:%A %Y-%m-%d %I:%M %p %Z}"
 	},
 	"clock": {
-		"format": "{:%H:%M  %a %b %d}",
+		"format": "{:%a %b %d  %H:%M}",
 		"tooltip-format": "{calendar}",
 		"calendar": {
 			"format": {
@@ -174,7 +174,7 @@
 	// bar's closes a status group and must round only its right edge. Styles as
 	// #clock.date, so it picks up every #clock rule plus that override.
 	"clock#date": {
-		"format": "{:%H:%M  %a %b %d}",
+		"format": "{:%a %b %d  %H:%M}",
 		"tooltip-format": "{calendar}",
 		"calendar": {
 			"format": {
