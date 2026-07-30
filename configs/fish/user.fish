@@ -5,7 +5,7 @@ fish_add_path $HOME/go/bin
 abbr install sudo pacman -S
 abbr uninstall sudo pacman -Rns
 abbr upgrade-system sudo pacman -Syu
-abbr upgrade-aur yay -Syu --devel --timeupdate
+abbr upgrade-aur yay -Syu
 abbr nap systemctl suspend
 
 # API Keys
