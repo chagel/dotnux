@@ -1,5 +1,6 @@
 fish_add_path $HOME/Dotfiles/scripts
 fish_add_path $HOME/.local/bin
+fish_add_path $HOME/go/bin
 
 abbr install sudo pacman -S
 abbr uninstall sudo pacman -Rns
