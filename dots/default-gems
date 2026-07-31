@@ -1,0 +1,17 @@
+# Gems mise installs into every new ruby it builds, so a version bump does
+# not silently leave the global command-line tools behind.
+#
+# One gem per line; "name --version x.y" pins. Blank lines and # are ignored.
+#
+# Keep this to tools invoked as commands outside a project. Application
+# dependencies belong in that application's Gemfile, not here -- every entry
+# is paid for again on each `mise install ruby@...`.
+
+rails
+rspec
+rubocop
+brakeman
+bundler-audit
+kamal
+tmuxinator
+debug
