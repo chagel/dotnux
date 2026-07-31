@@ -1,0 +1,14 @@
+# Show 9 candidates per page instead of RIME's default 5.
+#
+# fcitx5's own DefaultPageSize=9 does not apply here -- RIME draws its own
+# candidate list and honours menu/page_size, so the fcitx5 setting is ignored.
+# Patching default.yaml covers every schema at once; luna_pinyin has no
+# schema-level `menu:` block of its own to override it.
+#
+# 9 is the practical ceiling for digit selection: keys 1-9 map to candidates
+# 1-9, leaving 0 free for the tenth only if page_size were 10.
+#
+# Redeploy after editing:  fcitx5-remote -r
+# Revert by deleting this file and redeploying.
+patch:
+  "menu/page_size": 9

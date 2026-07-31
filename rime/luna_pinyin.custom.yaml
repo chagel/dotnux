@@ -1,0 +1,24 @@
+# 朙月拼音 -- default to simplified output.
+#
+# luna_pinyin ships `simplification` with no `reset:`, which means it defaults
+# to 0 (漢字 / traditional). Setting reset: 1 selects 汉字 instead, applied
+# through the schema's existing `simplifier` filter and OpenCC's t2s data.
+#
+# The whole switches list is repeated on purpose: a RIME patch replaces a list
+# wholesale rather than merging into it, so any entry left out here would be
+# dropped from the schema entirely.
+#
+# Redeploy after editing:  fcitx5-remote -r
+# Revert by deleting this file and redeploying.
+patch:
+  switches:
+    - name: ascii_mode
+      reset: 0
+      states: [ 中文, 西文 ]
+    - name: full_shape
+      states: [ 半角, 全角 ]
+    - name: simplification
+      reset: 1
+      states: [ 漢字, 汉字 ]
+    - name: ascii_punct
+      states: [ 。，, ．， ]
