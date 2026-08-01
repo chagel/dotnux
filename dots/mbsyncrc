@@ -3,7 +3,7 @@
 IMAPAccount gmail
 Host imap.gmail.com
 User chagel@gmail.com
-PassCmd "op read op://Personal/jo5ee3r3g55fkry4epnbrpnrgm/neomutt | tr -d ' '"
+PassCmd "$HOME/Dotfiles/scripts/mail-pass 'op://Personal/jo5ee3r3g55fkry4epnbrpnrgm/neomutt'"
 TLSType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 
@@ -55,7 +55,7 @@ Channels gmail-labels gmail-sent gmail-drafts gmail-starred
 IMAPAccount pipi
 Host imap.gmail.com
 User mike@pipihosting.com
-PassCmd "op read 'op://PIPI/oxc4dqec2rcsdf4q35tcdel5em/add more/neomutt' | tr -d ' '"
+PassCmd "$HOME/Dotfiles/scripts/mail-pass 'op://PIPI/oxc4dqec2rcsdf4q35tcdel5em/neomutt'"
 TLSType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 

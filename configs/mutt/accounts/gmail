@@ -6,7 +6,7 @@ set status_format = "-%r- gmail <chagel@gmail.com> %f [Msgs:%?M?%M/?%m%?n? New:%
 # Credentials — app password from 1Password ("Google - 1. chagel@gmail.com",
 # neomutt field, addressed by item ID)
 set smtp_url  = "smtp://chagel@gmail.com@smtp.gmail.com:587/"
-set smtp_pass = "`op read op://Personal/jo5ee3r3g55fkry4epnbrpnrgm/neomutt | tr -d ' '`"
+set smtp_pass = "`$HOME/Dotfiles/scripts/mail-pass 'op://Personal/jo5ee3r3g55fkry4epnbrpnrgm/neomutt'`"
 
 # Mailboxes
 set folder = "~/.mail/gmail"

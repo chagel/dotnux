@@ -6,7 +6,7 @@ set status_format = "-%r- pipi <mike@pipihosting.com> %f [Msgs:%?M?%M/?%m%?n? Ne
 # Credentials — app password from 1Password ("Google - 2. mike@pipihosting.com",
 # neomutt field, addressed by item ID)
 set smtp_url  = "smtp://mike@pipihosting.com@smtp.gmail.com:587/"
-set smtp_pass = "`op read 'op://PIPI/oxc4dqec2rcsdf4q35tcdel5em/add more/neomutt' | tr -d ' '`"
+set smtp_pass = "`$HOME/Dotfiles/scripts/mail-pass 'op://PIPI/oxc4dqec2rcsdf4q35tcdel5em/neomutt'`"
 
 # Mailboxes
 set folder = "~/.mail/pipi"

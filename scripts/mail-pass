@@ -1,0 +1,17 @@
+#!/bin/bash
+# Fetch a mail app password from 1Password, cached in the kernel user keyring
+# so op is only consulted once per login session (12h timeout, memory-only).
+# Usage: mail-pass 'op://<vault>/<item>/<field>'
+
+ref="$1"
+desc="mail-pass:$ref"
+
+if id=$(keyctl search @u user "$desc" 2>/dev/null); then
+  keyctl pipe "$id"
+  exit 0
+fi
+
+pw=$(op read "$ref" | tr -d ' \n') || exit 1
+id=$(printf '%s' "$pw" | keyctl padd user "$desc" @u)
+keyctl timeout "$id" 43200
+printf '%s' "$pw"
