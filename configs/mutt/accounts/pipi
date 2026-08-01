@@ -1,0 +1,34 @@
+# pipi (Google Workspace)
+set from = "mike@pipihosting.com"
+set realname = "MGC"
+set status_format = "-%r- pipi <mike@pipihosting.com> %f [Msgs:%?M?%M/?%m%?n? New:%n?%?d? Del:%d?%?F? Flag:%F?%?t? Tag:%t?]%>-(%P)"
+
+# Credentials — app password from 1Password ("Google - 2. mike@pipihosting.com",
+# neomutt field, addressed by item ID)
+set smtp_url  = "smtp://mike@pipihosting.com@smtp.gmail.com:587/"
+set smtp_pass = "`op read 'op://PIPI/oxc4dqec2rcsdf4q35tcdel5em/add more/neomutt' | tr -d ' '`"
+
+# Mailboxes
+set folder = "~/.mail/pipi"
+set mbox_type = Maildir
+set text_flowed = yes
+unset record
+set sig_on_top = yes
+set signature = "~/.config/mutt/signs/gmail"
+
+set header_cache = "~/.cache/mutt/pipi/headers"
+set message_cachedir = "~/.cache/mutt/pipi/bodies"
+set certificate_file = "~/.cache/mutt/pipi/certificates"
+
+set ssl_starttls = yes
+set ssl_force_tls = yes
+
+unmailboxes *
+mailboxes "=INBOX" "=Sent" "=Drafts" "=Starred"
+macro index,pager gi "<change-folder>=INBOX<enter>" "Go to inbox"
+macro index,pager gs "<change-folder>=Starred<enter>" "Go to starred mail"
+macro index,pager go "<change-folder>=Sent<enter>" "Go to sent mail"
+macro index,pager gd "<change-folder>=Drafts<enter>" "Go to draft mail"
+
+set spoolfile = "+INBOX"
+set postponed = "+Drafts"

@@ -1,0 +1,100 @@
+# Gmail — app password from 1Password ("Google - 1. chagel@gmail.com" / neomutt
+# field, addressed by item ID; tr strips Google's display spaces)
+IMAPAccount gmail
+Host imap.gmail.com
+User chagel@gmail.com
+PassCmd "op read op://Personal/jo5ee3r3g55fkry4epnbrpnrgm/neomutt | tr -d ' '"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+Subfolders Verbatim
+Path ~/.mail/gmail/
+Inbox ~/.mail/gmail/INBOX
+
+# Labels sync under their plain names; [Gmail]/* folders are mapped to the
+# short names the muttrc mailboxes expect (Sent, Drafts, Starred)
+Channel gmail-labels
+Far :gmail-remote:
+Near :gmail-local:
+Patterns "INBOX" "Reading" "Yifan"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-sent
+Far :gmail-remote:"[Gmail]/Sent Mail"
+Near :gmail-local:Sent
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-drafts
+Far :gmail-remote:"[Gmail]/Drafts"
+Near :gmail-local:Drafts
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-starred
+Far :gmail-remote:"[Gmail]/Starred"
+Near :gmail-local:Starred
+Create Both
+Expunge Both
+SyncState *
+
+# `mbsync gmail` syncs everything; matches the muttrc F5 macro
+Group gmail
+Channels gmail-labels gmail-sent gmail-drafts gmail-starred
+
+# pipi — Google Workspace, app password from 1Password
+# ("Google - 2. mike@pipihosting.com" / neomutt field)
+IMAPAccount pipi
+Host imap.gmail.com
+User mike@pipihosting.com
+PassCmd "op read 'op://PIPI/oxc4dqec2rcsdf4q35tcdel5em/add more/neomutt' | tr -d ' '"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore pipi-remote
+Account pipi
+
+MaildirStore pipi-local
+Subfolders Verbatim
+Path ~/.mail/pipi/
+Inbox ~/.mail/pipi/INBOX
+
+Channel pipi-inbox
+Far :pipi-remote:
+Near :pipi-local:
+Patterns "INBOX"
+Create Both
+Expunge Both
+SyncState *
+
+Channel pipi-sent
+Far :pipi-remote:"[Gmail]/Sent Mail"
+Near :pipi-local:Sent
+Create Both
+Expunge Both
+SyncState *
+
+Channel pipi-drafts
+Far :pipi-remote:"[Gmail]/Drafts"
+Near :pipi-local:Drafts
+Create Both
+Expunge Both
+SyncState *
+
+Channel pipi-starred
+Far :pipi-remote:"[Gmail]/Starred"
+Near :pipi-local:Starred
+Create Both
+Expunge Both
+SyncState *
+
+Group pipi
+Channels pipi-inbox pipi-sent pipi-drafts pipi-starred

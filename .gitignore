@@ -24,11 +24,12 @@ password*
 
 themes/gtk/gtk-3.0/bookmarks
 
-dots/mbsyncrc
 configs/mutt/aliases
 configs/mutt/signs/*
+!configs/mutt/signs/gmail
 configs/mutt/accounts/*
 !configs/mutt/accounts/gmail
+!configs/mutt/accounts/pipi
 
 configs/tmuxinator/*
 !configs/tmuxinator/mgc.yml

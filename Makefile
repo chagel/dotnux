@@ -12,11 +12,18 @@ APPS_DIR  := ${HOME}/.local/share/applications
 RIME      := $(shell ls rime)
 RIME_DIR  := ${HOME}/.local/share/fcitx5/rime
 
+# Mail sync/index units, linked file by file: ~/.config/systemd/user is a
+# real directory owned by other services and cannot be replaced by a symlink.
+UNITS     := $(shell ls systemd)
+UNITS_DIR := ${HOME}/.config/systemd/user
+
 init::
 	## make local applications folder
 	@mkdir -pv $(APPS_DIR)
 	## make rime config folder
 	@mkdir -pv $(RIME_DIR)
+	## make mail folders
+	@mkdir -pv $(UNITS_DIR) ${HOME}/.mail/gmail ${HOME}/.mail/pipi ${HOME}/.cache/mutt/gmail ${HOME}/.cache/mutt/pipi ${HOME}/.mail_attachments
 
 setup::
 	## link desktop entry overrides
@@ -24,3 +31,5 @@ setup::
 	@update-desktop-database $(APPS_DIR)
 	## link rime input-method patches
 	@for item in $(RIME); do ln -vsfn $(BASE)/rime/$$item $(RIME_DIR)/$$item; done
+	## link mail systemd units
+	@for item in $(UNITS); do ln -vsfn $(BASE)/systemd/$$item $(UNITS_DIR)/$$item; done

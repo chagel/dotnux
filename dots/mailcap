@@ -1,0 +1,10 @@
+text/plain; nvim %s
+
+# interactive view (V / view-mailcap) opens in the default browser;
+# the w3m entry renders HTML inline in the pager (auto_view text/html)
+text/html; xdg-open %s; test=test -n "$WAYLAND_DISPLAY" -o -n "$DISPLAY"; nametemplate=%s.html; needsterminal
+text/html; w3m -I %{charset} -T text/html; copiousoutput
+
+application/pgp-keys; gpg --import %s; copiousoutput
+
+*/*; xdg-open %s

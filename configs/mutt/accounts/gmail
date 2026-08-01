@@ -1,0 +1,43 @@
+# gmail
+set from = "chagel@gmail.com"
+set realname = "MGC"
+set status_format = "-%r- gmail <chagel@gmail.com> %f [Msgs:%?M?%M/?%m%?n? New:%n?%?d? Del:%d?%?F? Flag:%F?%?t? Tag:%t?]%>-(%P)"
+
+# Credentials — app password from 1Password ("Google - 1. chagel@gmail.com",
+# neomutt field, addressed by item ID)
+set smtp_url  = "smtp://chagel@gmail.com@smtp.gmail.com:587/"
+set smtp_pass = "`op read op://Personal/jo5ee3r3g55fkry4epnbrpnrgm/neomutt | tr -d ' '`"
+
+# Mailboxes
+set folder = "~/.mail/gmail"
+set mbox_type = Maildir
+set text_flowed = yes
+unset record
+set sig_on_top = yes
+set signature = "~/.config/mutt/signs/gmail"
+
+set header_cache = "~/.cache/mutt/gmail/headers"
+set message_cachedir = "~/.cache/mutt/gmail/bodies"
+set certificate_file = "~/.cache/mutt/gmail/certificates"
+
+set ssl_starttls = yes
+set ssl_force_tls = yes
+
+#bind index,pager gi noop
+#bind index,pager gy noop
+#bind index,pager gs noop
+#bind index,pager gp noop
+#bind index,pager go noop
+#bind index,pager gd noop
+#bind index,pager gn noop
+
+unmailboxes *
+mailboxes "=INBOX" "=Sent" "=Drafts" "=Starred" "=Reading" "=Yifan"
+macro index,pager gi "<change-folder>=INBOX<enter>" "Go to inbox"
+macro index,pager gs "<change-folder>=Starred<enter>" "Go to starred mail"
+macro index,pager go "<change-folder>=Sent<enter>" "Go to sent mail"
+macro index,pager gd "<change-folder>=Drafts<enter>" "Go to draft mail"
+macro index,pager gy "<change-folder>=Yifan<enter>" "Go to Yifan mail"
+
+set spoolfile = "+INBOX"
+set postponed = "+Drafts"

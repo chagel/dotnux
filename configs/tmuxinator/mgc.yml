@@ -48,6 +48,10 @@ windows:
   - fm:
       panes:
         - c
+  - mail:
+      root: ~/.mail
+      panes:
+        - neomutt
   - blog: 
       root: ~/Workspaces/gchen/src/blog
       layout: main-vertical
