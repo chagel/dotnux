@@ -1,3 +1,4 @@
+onboarding = false
 # Herdr keybindings, mirroring the tmux setup in dotbase/tmux/tmux.conf so
 # muscle memory carries over between the two multiplexers.
 # Validate changes with `herdr config check`, apply with `herdr server reload-config`.
@@ -7,10 +8,13 @@ prefix = "`"                      # tmux: set -g prefix `
 
 split_vertical   = "prefix+|"     # tmux: bind | split-window -h
 split_horizontal = "prefix+-"     # tmux: bind - split-window -v
-focus_pane_left  = "ctrl+h"
-focus_pane_down  = "ctrl+j"
-focus_pane_up    = "ctrl+k"
-focus_pane_right = "ctrl+l"
+# ctrl+hjkl is claimed by the [[keys.command]] block at the end of this file rather
+# than bound here, because the key has to be routed per pane. These prefix
+# bindings stay as the direct fallback.
+focus_pane_left  = "prefix+h"
+focus_pane_down  = "prefix+j"
+focus_pane_up    = "prefix+k"
+focus_pane_right = "prefix+l"
 close_pane       = "prefix+x"
 zoom             = "prefix+z"
 resize_mode      = "prefix+r"     # tmux resizes with prefix+HJKL; herdr is modal
@@ -31,3 +35,29 @@ detach           = "prefix+d"     # tmux: bind d detach
 reload_config    = "prefix+shift+r"
 toggle_sidebar   = "prefix+b"     # tmux: bind b set-option status
 workspace_picker = "prefix+w"
+
+# Vim-aware pane navigation, the herdr equivalent of what vim-tmux-navigator
+# binds in tmux. herdr intercepts a custom command before forwarding the key to
+# the pane, so scripts/herdr-navigate gets to decide: hand the key to vim when
+# vim holds the pane, move pane focus otherwise. Binding focus_pane_* to
+# ctrl+hjkl directly is what made ctrl+h/l unreachable inside vim.
+
+[[keys.command]]
+key = "ctrl+h"
+type = "shell"
+command = "herdr-navigate left ctrl+h"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "shell"
+command = "herdr-navigate down ctrl+j"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "shell"
+command = "herdr-navigate up ctrl+k"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "shell"
+command = "herdr-navigate right ctrl+l"
