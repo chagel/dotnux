@@ -17,11 +17,18 @@ RIME_DIR  := ${HOME}/.local/share/fcitx5/rime
 UNITS     := $(shell ls systemd)
 UNITS_DIR := ${HOME}/.config/systemd/user
 
+# Herdr config, linked file by file: ~/.config/herdr also holds the server
+# sockets, logs, and session state, so the directory itself must stay local.
+HERDR     := $(shell ls herdr)
+HERDR_DIR := ${HOME}/.config/herdr
+
 init::
 	## make local applications folder
 	@mkdir -pv $(APPS_DIR)
 	## make rime config folder
 	@mkdir -pv $(RIME_DIR)
+	## make herdr config folder
+	@mkdir -pv $(HERDR_DIR)
 	## make mail folders
 	@mkdir -pv $(UNITS_DIR) ${HOME}/.mail/gmail ${HOME}/.mail/pipi ${HOME}/.cache/mutt/gmail ${HOME}/.cache/mutt/pipi ${HOME}/.mail_attachments
 
@@ -33,3 +40,5 @@ setup::
 	@for item in $(RIME); do ln -vsfn $(BASE)/rime/$$item $(RIME_DIR)/$$item; done
 	## link mail systemd units
 	@for item in $(UNITS); do ln -vsfn $(BASE)/systemd/$$item $(UNITS_DIR)/$$item; done
+	## link herdr config
+	@for item in $(HERDR); do ln -vsfn $(BASE)/herdr/$$item $(HERDR_DIR)/$$item; done
