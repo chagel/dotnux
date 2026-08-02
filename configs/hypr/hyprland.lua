@@ -340,10 +340,12 @@ hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.resize({ x = 50,  y = 0,  relat
 hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.resize({ x = 0,   y = 50, relative = true }), { repeating = true })
 hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.resize({ x = 0,   y = -50, relative = true }), { repeating = true })
 
--- CONTROL switches workspace; mainMod forwards ALT+<digit> to the focused
+-- CONTROL switches workspace; mainMod forwards CTRL+ALT+<digit> to the focused
 -- window (the macOS CMD+[1-9] habit); mainMod+SHIFT moves the window.
+-- CTRL+ALT rather than plain ALT so terminal apps can tell the two apart:
+-- herdr binds it to workspace switching and keeps ALT+<digit> for agent rows.
 for i = 1, 9 do
-    hl.bind(mainMod .. " + " .. i,           hl.dsp.send_shortcut({ mods = "ALT", key = tostring(i), window = "activewindow" }))
+    hl.bind(mainMod .. " + " .. i,           hl.dsp.send_shortcut({ mods = "CTRL ALT", key = tostring(i), window = "activewindow" }))
     hl.bind(mainMod .. " + SHIFT + " .. i,   hl.dsp.window.move({ workspace = i }))
     hl.bind("CONTROL + " .. i,               hl.dsp.focus({ workspace = i }))
 end

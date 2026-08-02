@@ -7,10 +7,10 @@ prefix = "`"                      # tmux: set -g prefix `
 
 split_vertical   = "prefix+|"     # tmux: bind | split-window -h
 split_horizontal = "prefix+-"     # tmux: bind - split-window -v
-focus_pane_left  = "prefix+h"
-focus_pane_down  = "prefix+j"
-focus_pane_up    = "prefix+k"
-focus_pane_right = "prefix+l"
+focus_pane_left  = "ctrl+h"
+focus_pane_down  = "ctrl+j"
+focus_pane_up    = "ctrl+k"
+focus_pane_right = "ctrl+l"
 close_pane       = "prefix+x"
 zoom             = "prefix+z"
 resize_mode      = "prefix+r"     # tmux resizes with prefix+HJKL; herdr is modal
@@ -21,6 +21,11 @@ previous_tab = "prefix+p"
 switch_tab   = "prefix+1..9"
 rename_tab   = "prefix+,"         # tmux: bind , rename-window
 close_tab    = "prefix+&"         # tmux: bind & kill-window
+
+# SUPER+<digit> never reaches a TUI, so Hyprland forwards it as CTRL+ALT+<digit>
+# (see configs/hypr/hyprland.lua). ALT+<digit> stays free for the agent rows.
+switch_workspace = "ctrl+alt+1..9"
+focus_agent      = "alt+1..9"
 
 detach           = "prefix+d"     # tmux: bind d detach
 reload_config    = "prefix+shift+r"
