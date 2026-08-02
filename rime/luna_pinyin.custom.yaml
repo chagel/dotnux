@@ -22,3 +22,35 @@ patch:
       states: [ 漢字, 汉字 ]
     - name: ascii_punct
       states: [ 。，, ．， ]
+
+  # Inline English, so a word can be typed mid-sentence without toggling
+  # ascii_mode. melt_eng is a whole schema rather than a bare dictionary
+  # because a table_translator resolves its prism by dictionary name, and only
+  # a deployed schema builds that prism -- listing it under dependencies is
+  # what makes RIME build melt_eng.prism.bin during deployment.
+  "schema/dependencies":
+    - melt_eng
+
+  # Both lists are repeated in full for the same reason as `switches` above:
+  # a patch replaces a list rather than merging into it.
+  "engine/translators":
+    - punct_translator
+    - table_translator@custom_phrase
+    - reverse_lookup_translator
+    - script_translator
+    - table_translator@melt_eng
+  "engine/filters":
+    - simplifier
+    - lua_filter@*cn_en_space
+    - uniquifier
+
+  # Secondary translator, so English stays out of the way of pinyin: no
+  # sentence building, no user dictionary, and a low initial_quality that keeps
+  # words below the pinyin candidates they share a spelling with.
+  melt_eng:
+    dictionary: melt_eng
+    enable_sentence: false
+    enable_user_dict: false
+    initial_quality: 1.1
+    comment_format:
+      - xform/.*//
