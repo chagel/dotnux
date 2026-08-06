@@ -395,6 +395,9 @@ hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.move({ monitor = "r" }))
 -- movetoroot and preselect; master-only messages fail silently.
 hl.bind(mainMod .. " + SHIFT + space", hl.dsp.layout("swapsplit"))
 hl.bind(mainMod .. " + space",         hl.dsp.layout("movetoroot"))
+-- preserve_split pins a split's orientation, so flipping side-by-side to
+-- stacked has to be asked for explicitly.
+hl.bind(mainMod .. " + V",             hl.dsp.layout("togglesplit"))
 
 -- Window manipulation
 hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized" }))
