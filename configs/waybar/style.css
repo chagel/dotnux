@@ -60,6 +60,7 @@ tooltip label {
 }
 
 #clock,
+#custom-clock,
 #battery,
 #pulseaudio,
 #network,
@@ -70,7 +71,7 @@ tooltip label {
 }
 
 /* #network opens the status group, so it carries the rounded left edge that
-   #clock closes on the right. */
+   #custom-clock closes on the right. */
 #network {
     border-radius: 28px 0 0 28px;
     padding-left: 24px;
@@ -84,29 +85,27 @@ tooltip label {
     color: red;
 }
 
-#clock {
+#custom-clock {
     padding-right: 16px;
     border-radius: 0 16px 16px 0;
 }
 
 /* The date clock is the right bar's only status module, so it has to both open
-   and close the group. #clock alone rounds just the right edge, and there is no
-   #network beside it to supply the left one, which left it square. Round both
-   at the clock's own 16px rather than #network's 28px, so the standalone pill
-   reads as symmetric instead of lopsided.
-   #clock.date outranks #clock on specificity, so order here does not matter. */
-#clock.date {
+   and close the group. #custom-clock alone rounds just the right edge, and there
+   is no #network beside it to supply the left one, which left it square. Round
+   both at the clock's own 16px rather than #network's 28px, so the standalone
+   pill reads as symmetric instead of lopsided.
+   #custom-clock.date outranks #custom-clock on specificity, so order here does
+   not matter. */
+#custom-clock.date {
     border-radius: 16px;
     padding-left: 16px;
 }
 
-/* The Shanghai clock sits mid-bar, so it must not take the rounded right edge
-   that closes the module group -- that belongs to the local clock alone.
-   #clock.shanghai outranks #clock on specificity, so order here does not matter. */
+/* The Shanghai clock is still a built-in clock module, so it styles as #clock
+   and never picks up the #custom-clock rounding above. It only needs to read as
+   secondary: dimmer than the bar's #CCCCCC so the foreign time sits behind the
+   local clock next to it. */
 #clock.shanghai {
-    border-radius: 0;
-    padding-right: 14px;
-    /* Dimmer than the bar's #CCCCCC so the foreign time reads as secondary
-       to the local clock next to it. */
     color: #888888;
 }

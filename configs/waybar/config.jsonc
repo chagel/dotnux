@@ -45,7 +45,7 @@
 			"battery",
 			"pulseaudio",
 			"clock#shanghai",
-			"clock"
+			"custom/clock"
 		]
 	},
 	{
@@ -69,7 +69,7 @@
 			"hyprland/window"
 		],
 		"modules-right": [
-			"clock#date"
+			"custom/clock#date"
 		]
 	}
 ]

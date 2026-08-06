@@ -157,33 +157,32 @@
 		"format": "CST {:%I:%M %p}",
 		"tooltip-format": "{:%A %Y-%m-%d %I:%M %p %Z}"
 	},
-	"clock": {
-		"format": "{:%a %b %d  %H:%M}",
-		"tooltip-format": "{calendar}",
-		"calendar": {
-			"format": {
-				"months": "<span color='#D3D04F'><b>{}</b></span>",
-				"days": "<span color='#93B1A6'><b>{}</b></span>",
-				"weekdays": "<span color='#8EAC50'><b>{}</b></span>",
-				"today": "<span color='#8EAC50'><b><u>{}</u></b></span>"
-			}
-		}
+	// The built-in clock module can only expand {calendar} in its tooltip and has
+	// no hook for outside data, so the local clock is a custom module instead:
+	// waybar-clock draws the same calendar palette and appends the week's agenda
+	// from khal, which vdirsyncer keeps in sync with Google Calendar.
+	"custom/clock": {
+		"exec": "waybar-clock",
+		"return-type": "json",
+		"interval": 30,
+		// GNOME Calendar holds both Google accounts through evolution-data-server;
+		// the web app is the fallback on the right button.
+		"on-click": "gnome-calendar",
+		"on-click-right": "xdg-open https://calendar.google.com"
 	},
-	// Same format as "clock", kept as a separate module purely for styling: the
-	// right bar's clock stands alone and has to round both ends, while the left
-	// bar's closes a status group and must round only its right edge. Styles as
-	// #clock.date, so it picks up every #clock rule plus that override.
-	"clock#date": {
-		"format": "{:%a %b %d  %H:%M}",
-		"tooltip-format": "{calendar}",
-		"calendar": {
-			"format": {
-				"months": "<span color='#D3D04F'><b>{}</b></span>",
-				"days": "<span color='#93B1A6'><b>{}</b></span>",
-				"weekdays": "<span color='#8EAC50'><b>{}</b></span>",
-				"today": "<span color='#8EAC50'><b><u>{}</u></b></span>"
-			}
-		}
+	// Same module as "custom/clock", kept as a separate entry purely for styling:
+	// the right bar's clock stands alone and has to round both ends, while the
+	// left bar's closes a status group and must round only its right edge. Styles
+	// as #custom-clock.date, so it picks up every #custom-clock rule plus that
+	// override.
+	"custom/clock#date": {
+		"exec": "waybar-clock",
+		"return-type": "json",
+		"interval": 30,
+		// GNOME Calendar holds both Google accounts through evolution-data-server;
+		// the web app is the fallback on the right button.
+		"on-click": "gnome-calendar",
+		"on-click-right": "xdg-open https://calendar.google.com"
 	},
 	"backlight": {
 		"device": "intel_backlight",

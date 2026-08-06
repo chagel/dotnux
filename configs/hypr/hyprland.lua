@@ -274,6 +274,18 @@ hl.window_rule({
 })
 
 hl.window_rule({
+    name  = "khal",
+    match = { title = "khal" },
+
+    -- Interactive calendar (SUPER+C). Arrow keys walk days and weeks and the
+    -- event pane follows the cursor, which is the browsing the waybar tooltip
+    -- deliberately does not try to do. Size comes from ghostty's flags, as with
+    -- dropterm above.
+    float  = true,
+    center = true,
+})
+
+hl.window_rule({
     name  = "scratchpad",
     match = { title = "scratchpad" },
 
@@ -410,6 +422,7 @@ hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.window.cycle_next())
 
 hl.bind(mainMod .. " + SHIFT + grave", hl.dsp.exec_cmd("drun"))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + C",      hl.dsp.exec_cmd(terminal .. " --title=khal --window-width=100 --window-height=34 -e khal interactive"))
 hl.bind(mainMod .. " + O",      hl.dsp.exec_cmd("define"))
 hl.bind("Print", hl.dsp.exec_cmd("screenshot"))
 hl.bind("F4",    hl.dsp.exec_cmd("pavucontrol"))

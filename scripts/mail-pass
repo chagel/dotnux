@@ -1,9 +1,16 @@
 #!/bin/bash
-# Fetch a mail app password from 1Password, cached in the kernel user keyring
-# so op is only consulted once per login session (12h timeout, memory-only).
+# Fetch a secret from 1Password, cached in the kernel user keyring so op is only
+# consulted once per login session (12h timeout, memory-only). Used by the mail
+# stack and by vdirsyncer's *.fetch hooks.
 # Usage: mail-pass 'op://<vault>/<item>/<field>'
 
 ref="$1"
+
+# vdirsyncer runs every argument of a *.fetch command through os.path.normpath,
+# which collapses the "op://" scheme to "op:/" before the command ever runs.
+# Put the slash back so one helper serves both callers.
+[[ $ref == op:/[!/]* ]] && ref="op://${ref#op:/}"
+
 desc="mail-pass:$ref"
 
 if id=$(keyctl search @u user "$desc" 2>/dev/null); then
@@ -11,7 +18,12 @@ if id=$(keyctl search @u user "$desc" 2>/dev/null); then
   exit 0
 fi
 
-pw=$(op read "$ref" | tr -d ' \n') || exit 1
+# Not a pipeline: op's exit status has to survive, or a failed read caches an
+# empty secret and the caller sees a confusing keyctl error instead.
+pw=$(op read "$ref") || exit 1
+pw="${pw//[[:space:]]/}"
+[[ -n $pw ]] || exit 1
+
 id=$(printf '%s' "$pw" | keyctl padd user "$desc" @u)
 keyctl timeout "$id" 43200
 printf '%s' "$pw"

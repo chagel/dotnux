@@ -1,0 +1,62 @@
+# Pulls both Google accounts into the vdirs khal reads. The google_calendar
+# storage talks to the API rather than to one calendar's iCal URL, so "from b"
+# discovers every calendar in an account and gives each its own directory --
+# khal globs those, so a calendar added in Google needs no config change here.
+#
+# One pair per account, each into its own subtree: the holiday calendars are
+# shared "@virtual" collections whose ids are identical in every account, so a
+# flat layout would have the two pairs syncing over each other.
+#
+# Both accounts use the same OAuth client (a Desktop credential from the Google
+# Cloud console, with the Calendar API *and* the CalDAV API enabled -- they are
+# separate APIs and discovery fails with a misleading 404 without the latter).
+# The client id and secret live in 1Password and are fetched through mail-pass,
+# which caches them in the kernel keyring. Each account gets its own token_file,
+# written after its own one-time browser consent, so the two never share a
+# session. Accounts other than the one owning the Cloud project must be added as
+# test users on the consent screen while the app is unverified.
+#
+# Needs the python-aiohttp-oauthlib optional dependency for Google support.
+
+[general]
+status_path = "~/.local/share/vdirsyncer/status/"
+
+[pair gcal_gmail]
+a = "gmail_local"
+b = "gmail_remote"
+collections = ["from b"]
+# Carries each calendar's Google display name and colour into the vdir, which is
+# what khal (and the waybar tooltip) colour events by. Synced by `metasync`.
+metadata = ["displayname", "color"]
+# Nothing here writes events -- khal is only a viewer -- so a conflict means the
+# local copy drifted and Google should simply win instead of halting the sync.
+conflict_resolution = "b wins"
+
+[storage gmail_local]
+type = "filesystem"
+path = "~/.calendars/gmail/"
+fileext = ".ics"
+
+[storage gmail_remote]
+type = "google_calendar"
+token_file = "~/.local/share/vdirsyncer/google_token_gmail"
+client_id.fetch = ["command", "mail-pass", "op://Private/Google Calendar API/client id"]
+client_secret.fetch = ["command", "mail-pass", "op://Private/Google Calendar API/client secret"]
+
+[pair gcal_pipi]
+a = "pipi_local"
+b = "pipi_remote"
+collections = ["from b"]
+metadata = ["displayname", "color"]
+conflict_resolution = "b wins"
+
+[storage pipi_local]
+type = "filesystem"
+path = "~/.calendars/pipi/"
+fileext = ".ics"
+
+[storage pipi_remote]
+type = "google_calendar"
+token_file = "~/.local/share/vdirsyncer/google_token_pipi"
+client_id.fetch = ["command", "mail-pass", "op://Private/Google Calendar API/client id"]
+client_secret.fetch = ["command", "mail-pass", "op://Private/Google Calendar API/client secret"]

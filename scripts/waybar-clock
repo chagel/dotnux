@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""Waybar clock whose tooltip carries a month calendar plus the week's agenda.
+
+Waybar's built-in clock module can only expand {calendar} in its tooltip -- it
+has no hook for external data -- so the module is rebuilt as a custom one. The
+month grid is rendered here (same palette the built-in calendar used) and khal
+supplies the events underneath. If khal has no calendars yet the agenda is
+simply omitted, so the tooltip degrades to what the built-in module showed.
+
+This is the glance: today plus the week ahead, never interactive. Browsing other
+months is khal's interactive mode, on SUPER+C.
+"""
+
+import calendar
+import glob
+import html
+import json
+import os
+import re
+import subprocess
+import time
+from datetime import date, datetime
+
+MONTH = "#D3D04F"
+WEEKDAY = "#8EAC50"
+DAY = "#93B1A6"
+TODAY = "#8EAC50"  # today is a filled chip, so this is its background
+INK = "#1A1A1A"    # dark enough to read on that chip
+
+WIDTH = 20  # "Su Mo Tu We Th Fr Sa"
+GAP = "   "  # between the two month grids
+
+# One vdir per Google calendar, grouped by account, each with the colour
+# vdirsyncer mirrored from Google beside it -- there are far too many calendars
+# to name in a tooltip, so events are tagged with their calendar's colour
+# instead of its (email-shaped) directory name.
+CAL_DIR = os.path.expanduser("~/.calendars")
+COLLECTIONS = os.path.join(CAL_DIR, "*", "*")  # <account>/<calendar id>
+HEX = re.compile(r"^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$")
+
+# Loading khal costs ~600ms, which is far too much to pay on every clock tick,
+# and the agenda barely moves between vdirsyncer runs anyway.
+CACHE = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "waybar-agenda")
+CACHE_TTL = 300
+
+
+def span(text, color, background=None):
+    attrs = f"color='{color}'"
+    if background:
+        attrs += f" background='{background}'"
+    return f"<span {attrs}><b>{text}</b></span>"
+
+
+def month_rows(year, month, today):
+    """One month as rows of exactly WIDTH visible columns, markup aside."""
+    cal = calendar.TextCalendar(firstweekday=6)  # Sunday, matching cal(1) under en_US
+    head = f"{calendar.month_name[month]} {year}".center(WIDTH)
+    rows = [span(head, MONTH), span(cal.formatweekheader(2), WEEKDAY)]
+
+    for week in cal.monthdayscalendar(year, month):
+        cells = []
+        for day in week:
+            if day == 0:
+                cells.append("  ")  # monthdayscalendar pads, so rows stay aligned
+            elif date(year, month, day) == today:
+                cells.append(span(f"{day:2}", INK, background=TODAY))
+            else:
+                cells.append(span(f"{day:2}", DAY))
+        rows.append(" ".join(cells))
+    return rows
+
+
+def add_months(year, month, delta):
+    year, month = divmod(year * 12 + month - 1 + delta, 12)
+    return year, month + 1
+
+
+def month_grid(today):
+    """Two months side by side: the agenda below runs about two grids wide,
+    which left a single month looking stranded in the corner."""
+    left = month_rows(today.year, today.month, today)
+    right = month_rows(*add_months(today.year, today.month, 1), today)
+
+    blank = " " * WIDTH
+    height = max(len(left), len(right))
+    left += [blank] * (height - len(left))
+    right += [blank] * (height - len(right))
+    return [f"{a}{GAP}{b}" for a, b in zip(left, right)]
+
+
+def agenda():
+    """Next week of events, from the cache when it is still warm."""
+    try:
+        if time.time() - os.path.getmtime(CACHE) < CACHE_TTL:
+            with open(CACHE) as fh:
+                return json.load(fh)
+    except (OSError, ValueError):
+        pass
+
+    lines = khal_agenda()
+    # A failed khal run must not be cached: right after a large vdirsyncer sync
+    # khal spends a while rebuilding its database and can miss the timeout, and
+    # caching that would blank the agenda for the rest of the TTL.
+    if lines is None:
+        return []
+    with open(CACHE, "w") as fh:
+        json.dump(lines, fh)
+    return lines
+
+
+def meta(collection, field):
+    try:
+        with open(os.path.join(collection, field)) as fh:
+            return fh.read().strip()
+    except OSError:
+        return ""
+
+
+def calendar_colors():
+    """Colour per calendar, keyed by the name khal reports.
+
+    vdirsyncer names each vdir after the Google calendar id and drops the
+    display name and colour in beside it; khal identifies a calendar by its
+    display name, so the two have to be joined here.
+    """
+    colors = {}
+    for collection in glob.glob(COLLECTIONS):
+        color = meta(collection, "color")
+        # A malformed colour would break Pango parsing for the whole tooltip.
+        # Google's come with an alpha channel, which Pango's color attribute
+        # does not take, so trim to RGB.
+        if HEX.match(color):
+            name = meta(collection, "displayname") or os.path.basename(collection)
+            colors[name] = color[:7]
+    return colors
+
+
+def khal_agenda():
+    """Next week of events from khal as pre-escaped Pango lines, None on error."""
+    try:
+        out = subprocess.run(
+            ["khal", "list", "--format", "{calendar}\t{start-end-time-style}\t{title}",
+             "--day-format", "{name}, {date}", "today", "7d"],
+            capture_output=True, text=True, timeout=20,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+    colors = calendar_colors()
+    lines = []
+    for raw in out.splitlines():
+        if "\t" in raw:
+            cal, when, title = raw.split("\t", 2)
+            when = when.strip() or "all day"
+            dot = span("●", colors[cal]) if cal in colors else " "
+            lines.append(f"  {dot} {html.escape(when)}  {html.escape(title)}")
+        elif raw.strip():
+            lines.append(span(html.escape(raw.strip()), WEEKDAY))
+    return lines
+
+
+now = datetime.now()
+tooltip = month_grid(date.today())
+events = agenda()
+if events:
+    tooltip += [""] + events
+
+print(json.dumps({
+    "text": now.strftime("%a %b %d  %H:%M"),
+    "tooltip": "\n".join(tooltip),
+}))

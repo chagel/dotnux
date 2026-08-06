@@ -12,8 +12,8 @@ APPS_DIR  := ${HOME}/.local/share/applications
 RIME      := $(shell ls rime)
 RIME_DIR  := ${HOME}/.local/share/fcitx5/rime
 
-# Mail sync/index units, linked file by file: ~/.config/systemd/user is a
-# real directory owned by other services and cannot be replaced by a symlink.
+# Mail and calendar sync units, linked file by file: ~/.config/systemd/user is
+# a real directory owned by other services and cannot be replaced by a symlink.
 UNITS     := $(shell ls systemd)
 UNITS_DIR := ${HOME}/.config/systemd/user
 
@@ -31,6 +31,8 @@ init::
 	@mkdir -pv $(HERDR_DIR)
 	## make mail folders
 	@mkdir -pv $(UNITS_DIR) ${HOME}/.mail/gmail ${HOME}/.mail/pipi ${HOME}/.cache/mutt/gmail ${HOME}/.cache/mutt/pipi ${HOME}/.mail_attachments
+	## make the vdir root vdirsyncer fills, one subtree per Google account
+	@mkdir -pv ${HOME}/.calendars/gmail ${HOME}/.calendars/pipi
 
 setup::
 	## link desktop entry overrides

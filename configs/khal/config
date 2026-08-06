@@ -1,0 +1,28 @@
+# khal reads the vdirs vdirsyncer fills from Google Calendar. The two glob
+# levels are account then calendar, and type = discover means every calendar
+# vdirsyncer finds is picked up automatically -- each one's colour comes from
+# the `color` file vdirsyncer writes alongside it. The pairs sync both ways, so
+# an event created in `khal interactive` reaches Google on the next run --
+# default_calendar is where those land.
+[calendars]
+  [[gcal]]
+  path = ~/.calendars/*/*
+  type = discover
+
+[locale]
+timeformat = %H:%M
+dateformat = %b %d
+longdateformat = %Y-%m-%d
+datetimeformat = %b %d %H:%M
+longdatetimeformat = %Y-%m-%d %H:%M
+
+[view]
+# Google stores descriptions as HTML, so the default formats trail every event
+# with raw "<ol><li>..." markup. Drop {description-separator}{description} from
+# both -- pressing enter in ikhal still shows the full event.
+agenda_event_format = {calendar-color}{cancelled}{start-end-time-style} {title}{repeat-symbol}{alarm-symbol}{reset}
+event_format = {calendar-color}{cancelled}{start}-{end} {title}{repeat-symbol}{alarm-symbol}{reset}
+
+[default]
+default_calendar = MGC
+highlight_event_days = True

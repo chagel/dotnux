@@ -1,0 +1,12 @@
+[Unit]
+Description=Calendar synchronization service
+
+[Service]
+Type=oneshot
+StandardOutput=null
+StandardError=journal
+ExecStart=/usr/bin/vdirsyncer sync
+# Display names and colours are a separate pass, and the tooltip colours events
+# by them -- a calendar renamed or recoloured in Google would otherwise never
+# catch up.
+ExecStartPost=/usr/bin/vdirsyncer metasync
