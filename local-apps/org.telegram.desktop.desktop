@@ -1,0 +1,39 @@
+[Desktop Entry]
+Name=Telegram
+Comment=New era of messaging
+TryExec=Telegram
+Icon=org.telegram.desktop
+# Telegram is a native Wayland Qt app, so the global QT_SCALE_FACTOR=2 puts its
+# surface at device-pixel-ratio 2 -- that is the 2x GUI it starts with. The
+# fcitx5 candidate window is not Telegram's to size: classicui draws it with
+# cairo into a zwp_input_popup_surface_v2, which is a child of the text input's
+# surface and so inherits the client's device-pixel-ratio. Telegram's own
+# "Interface scale" setting only rescales its widget metrics, which is why
+# turning it down shrinks the chat UI but leaves the input popup at 2x.
+# Drop the multiplier here and size the UI from Telegram's interface scale
+# instead; the popup then draws at 1x, matching every other app. Unset rather
+# than pinned like Zoom, because this one is Wayland-native and reads the real
+# monitor scale itself. GDK_SCALE goes too: QT_QPA_PLATFORMTHEME=gtk3 makes Qt
+# initialise GTK for theming, so GTK's scale leaks into the font metrics.
+# Same treatment as org.fcitx.fcitx5-config-qt.desktop.
+Exec=env -u QT_SCALE_FACTOR -u GDK_SCALE -u GDK_DPI_SCALE Telegram -- %U
+Terminal=false
+StartupWMClass=TelegramDesktop
+Type=Application
+Categories=Chat;Network;InstantMessaging;Qt;
+MimeType=x-scheme-handler/tg;x-scheme-handler/tonsite;
+Keywords=tg;chat;im;messaging;messenger;sms;tdesktop;
+Actions=quit;
+# Upstream sets this true. D-Bus activation launches the binary through
+# org.telegram.desktop.service, which carries the session environment and never
+# runs Exec, so the env -u above would be skipped on any activation that comes
+# through a tg:// link or the notification daemon.
+DBusActivatable=false
+SingleMainWindow=true
+X-GNOME-UsesNotifications=true
+X-GNOME-SingleWindow=true
+
+[Desktop Action quit]
+Exec=Telegram -quit
+Name=Quit Telegram
+Icon=application-exit
