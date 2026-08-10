@@ -14,3 +14,11 @@ color attach_headers     green           default    "[A]"
 color status white color236 '[0-9]+'
 
 color index_number color238 default
+
+# header block: catppuccin paints these all pink, so reserve pink for Subject
+color hdrdefault color8  default
+color header     color4  default "^From:"
+color header     color13 default "^Subject:"
+#color header    color13 color236 "^Subject:"  # subject as a title bar instead
+
+color body color8 default "^─+$"              # rule from scripts/mail-divider

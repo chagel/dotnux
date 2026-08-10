@@ -1,8 +1,10 @@
 text/plain; nvim %s
 
-# interactive view (V / view-mailcap) opens in the default browser;
-# the w3m entry renders HTML inline in the pager (auto_view text/html)
+# V (view-mailcap) opens the browser; copiousoutput renders inline (auto_view)
 text/html; xdg-open %s; test=test -n "$WAYLAND_DISPLAY" -o -n "$DISPLAY"; nametemplate=%s.html; needsterminal
+# cha alternative: hides preheader padding, but shows [img] not alt text.
+# One -c per declaration -- mailcap splits fields on ';'.
+# text/html; cha -T text/html -I %{charset} -c 'body,table,td,div{max-width:none!important}' -c 'body,table,td,div{width:auto!important}' -c 'body,table,td,div{margin-left:0!important}' -c 'body,table,td,div{margin-right:0!important}' -c 'body,table,td,div{text-align:left!important}' -d; copiousoutput
 text/html; w3m -I %{charset} -T text/html; copiousoutput
 
 application/pgp-keys; gpg --import %s; copiousoutput

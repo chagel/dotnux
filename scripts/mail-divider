@@ -1,0 +1,17 @@
+#!/bin/bash
+# neomutt $display_filter: swap the blank line ending the header block for a
+# rule. neomutt passes the message already weeded and decoded, and exports
+# COLUMNS as the pager width (terminal minus sidebar).
+
+width=${COLUMNS:-80}
+
+exec awk -v w="$width" '
+  !ruled && /^[[:space:]]*$/ {
+    rule = sprintf("%" w "s", "")
+    gsub(/ /, "\xe2\x94\x80", rule)
+    print rule
+    ruled = 1
+    next
+  }
+  { print }
+'
