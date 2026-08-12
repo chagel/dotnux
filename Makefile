@@ -22,6 +22,11 @@ UNITS_DIR := ${HOME}/.config/systemd/user
 HERDR     := $(shell ls herdr)
 HERDR_DIR := ${HOME}/.config/herdr
 
+# Agent skills, linked one directory each: ~/.claude/skills already holds skills
+# installed from elsewhere, so the directory itself cannot be a symlink.
+SKILLS     := $(shell ls skills)
+SKILLS_DIR := ${HOME}/.claude/skills
+
 init::
 	## make local applications folder
 	@mkdir -pv $(APPS_DIR)
@@ -29,6 +34,8 @@ init::
 	@mkdir -pv $(RIME_DIR)
 	## make herdr config folder
 	@mkdir -pv $(HERDR_DIR)
+	## make agent skills folder
+	@mkdir -pv $(SKILLS_DIR)
 	## make mail folders
 	@mkdir -pv $(UNITS_DIR) ${HOME}/.mail/gmail ${HOME}/.mail/pipi ${HOME}/.cache/mutt/gmail ${HOME}/.cache/mutt/pipi ${HOME}/.mail_attachments
 	## make the vdir root vdirsyncer fills, one subtree per Google account
@@ -44,3 +51,5 @@ setup::
 	@for item in $(UNITS); do ln -vsfn $(BASE)/systemd/$$item $(UNITS_DIR)/$$item; done
 	## link herdr config
 	@for item in $(HERDR); do ln -vsfn $(BASE)/herdr/$$item $(HERDR_DIR)/$$item; done
+	## link agent skills
+	@for item in $(SKILLS); do ln -vsfn $(BASE)/skills/$$item $(SKILLS_DIR)/$$item; done
