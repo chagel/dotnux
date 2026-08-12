@@ -424,7 +424,7 @@ hl.bind(mainMod .. " + SHIFT + grave", hl.dsp.exec_cmd("drun"))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + C",      hl.dsp.exec_cmd(terminal .. " --title=khal --window-width=100 --window-height=34 -e khal interactive"))
 hl.bind(mainMod .. " + O",      hl.dsp.exec_cmd("define"))
-hl.bind("Print", hl.dsp.exec_cmd("screenshot"))
+hl.bind("Print", hl.dsp.exec_cmd("env QT_SCALE_FACTOR=1 omasnap")) -- see the CONTROL+SHIFT+ALT+S bind for why the env prefix
 hl.bind("F4",    hl.dsp.exec_cmd("pavucontrol"))
 hl.bind("F10",   hl.dsp.exec_cmd("blueman-manager"))
 hl.bind("CONTROL + SHIFT + ALT + C", hl.dsp.window.center())
