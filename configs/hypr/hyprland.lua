@@ -432,7 +432,9 @@ hl.bind("CONTROL + SHIFT + ALT + E", hl.dsp.exec_cmd(fileManager))
 hl.bind("CONTROL + SHIFT + ALT + B", hl.dsp.exec_cmd(browser))
 hl.bind("CONTROL + SHIFT + ALT + L", hl.dsp.exec_cmd("lock"))
 hl.bind("CONTROL + SHIFT + ALT + N", hl.dsp.exec_cmd(terminal .. " --title=scratchpad --window-width=120 --window-height=34 -e vim /home/mike/.scratch.note"))
-hl.bind("CONTROL + SHIFT + ALT + S", hl.dsp.exec_cmd("screenshot"))
+-- omasnap maps its layer surface 1:1 to monitor pixels, so the global
+-- QT_SCALE_FACTOR=2 above doubles its overlay. Override it for this app only.
+hl.bind("CONTROL + SHIFT + ALT + S", hl.dsp.exec_cmd("env QT_SCALE_FACTOR=1 omasnap"))
 hl.bind("CONTROL + SHIFT + ALT + R", hl.dsp.exec_cmd("hyprctl reload"))
 -- SUPER+| -- bound as SHIFT+backslash; the "bar" keysym alone is unproducible.
 hl.bind(mainMod .. " + SHIFT + backslash", hl.dsp.exec_cmd("hyprdrop"))
