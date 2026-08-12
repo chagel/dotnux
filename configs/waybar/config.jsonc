@@ -27,7 +27,7 @@
 			"~/.config/waybar/modules.jsonc"
 		],
 		"position": "top",
-		"margin": "5 10 0 0",
+		"margin": "5 10 0 10",
 		"mod": "dock",
 		"modules-left": [
 			"custom/ws1",
@@ -57,7 +57,7 @@
 			"~/.config/waybar/modules.jsonc"
 		],
 		"position": "top",
-		"margin": "5 10 0 0",
+		"margin": "5 10 0 10",
 		"mod": "dock",
 		"modules-left": [
 			"custom/ws6",

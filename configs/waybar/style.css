@@ -1,13 +1,16 @@
+/* The universal selector must stay transparent: an opaque background here lands
+   on every widget, so the bar's alpha below would be hidden behind a row of
+   solid module rectangles. Anything needing a background sets its own. */
 * {
     font-family: "JetBrainsMono Nerd Font, monospace, sans-serif";
     font-weight: bold;
     font-size: 16px;
-    background: #0F0F0F;
+    background: transparent;
 }
 
 window#waybar {
     border-radius: 10px;
-    background: #0F0F0F;
+    background: rgba(15, 15, 15, 0.85);
     color: #CCCCCC;
 }
 
@@ -36,7 +39,10 @@ tooltip label {
     padding: 6px 4px;
     border-radius: 20px;
     margin: 0 4px 5px 0;
-    background: #0F0F0F;
+    /* transparent, not #0F0F0F: these matched the bar exactly when it was
+       opaque, so they read as invisible spacers. Against a translucent bar the
+       same colour would show through as darker patches. */
+    background: transparent;
     color: #333333;
 }
 
