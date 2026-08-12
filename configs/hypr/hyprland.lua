@@ -260,6 +260,9 @@ hl.window_rule({ match = { class = "galculator" },                    float = tr
 hl.window_rule({ match = { class = "(org\\.pulseaudio\\.)?pavucontrol" }, float = true })
 hl.window_rule({ match = { class = "blueman-manager" },               float = true })
 hl.window_rule({ match = { title = "Clocks" },                        float = true })
+-- the dictionary is a popup; floating is also what makes its --window-width
+-- and --window-height mean anything under the tiling layout
+hl.window_rule({ match = { title = "define" },                        float = true })
 
 hl.window_rule({
     name  = "dropterm",
@@ -429,6 +432,7 @@ hl.bind("F10",   hl.dsp.exec_cmd("blueman-manager"))
 hl.bind("CONTROL + SHIFT + ALT + C", hl.dsp.window.center())
 hl.bind("CONTROL + SHIFT + ALT + E", hl.dsp.exec_cmd(fileManager))
 hl.bind("CONTROL + SHIFT + ALT + B", hl.dsp.exec_cmd(browser))
+hl.bind("CONTROL + SHIFT + ALT + D", hl.dsp.exec_cmd("define"))
 hl.bind("CONTROL + SHIFT + ALT + L", hl.dsp.exec_cmd("lock"))
 hl.bind("CONTROL + SHIFT + ALT + N", hl.dsp.exec_cmd(terminal .. " --title=scratchpad --window-width=120 --window-height=34 -e vim /home/mike/.scratch.note"))
 -- omasnap maps its layer surface 1:1 to monitor pixels, so the global
