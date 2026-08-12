@@ -11,7 +11,7 @@ local mon_left  = "desc:Dell Inc. DELL P2715Q 54KKD7AA486L" -- landscape, left
 local mon_right = "desc:Dell Inc. DELL U2718Q 4K8X78A61P3L" -- portrait, right
 
 -- 27" 4K, ~163 DPI, left unscaled. Apps are sized individually instead:
--- chrome-flags.conf, local-apps/teams-for-linux.desktop, ghostty/config.
+-- chrome-flags.conf, apps/teams-for-linux.desktop, ghostty/config.
 -- Reinstating a scale here means dropping those, or they double-scale.
 hl.monitor({ output = mon_left, mode = "3840x2160@60", position = "0x0", scale = 1 })
 
