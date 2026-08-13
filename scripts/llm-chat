@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Pick a model in fuzzel, chat with it in a terminal.
+#
+#   llm-chat            pick a model and open a chat
+#   llm-chat --refresh  rebuild the model list after installing a plugin
+#
+# The list is cached because `llm models list` costs ~4s of SDK imports.
+# fish -l -c so llm resolves to the fish function holding the API keys; the
+# raw binary in ~/.local/bin has none.
+
+set -eu
+
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/llm-chat"
+MODELS="$CACHE/models"
+TERMINAL=${TERMINAL:-ghostty}
+
+notify() {
+  command -v notify-send > /dev/null 2>&1 && notify-send -u critical llm-chat "$1"
+  echo "llm-chat: $1" >&2
+}
+
+refresh() {
+  mkdir -p "$CACHE"
+  # strip provider prefix and alias suffix, leaving ids valid for -m
+  fish -l -c 'llm models list' 2> /dev/null \
+    | sed 's/^[^:]*: //; s/ (aliases:.*//' > "$MODELS"
+  [ -s "$MODELS" ] || {
+    notify "could not list models"
+    exit 1
+  }
+}
+
+for dep in fuzzel fish; do
+  command -v $dep > /dev/null 2>&1 || {
+    notify "missing dependency: $dep"
+    exit 1
+  }
+done
+
+[ "${1-}" = "--refresh" ] && {
+  refresh
+  echo "llm-chat: cached $(wc -l < "$MODELS") models"
+  exit 0
+}
+
+[ -s "$MODELS" ] || refresh
+
+model=$(fuzzel --dmenu --prompt 'chat with  ' --lines 15 --width 44 < "$MODELS") || exit 0
+[ -n "$model" ] || exit 0
+
+# the size only applies because a window rule floats this title
+exec "$TERMINAL" --title=llm-chat --window-width=110 --window-height=36 \
+  -e fish -l -c "llm chat -m $model"
