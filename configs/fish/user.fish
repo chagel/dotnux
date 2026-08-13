@@ -8,12 +8,13 @@ abbr upgrade-system sudo pacman -Syu
 abbr upgrade-aur yay -Syu
 abbr nap systemctl suspend
 
-# API Keys
-function load_api_keys --description "Load API keys from password store(1Password)"
-    if type -q pass
-        set -gx OPENAI_API_KEY (op item get cfx7ecmfy3pc7a3zcc7vr2fmhe --reveal --fields credential || echo "")
-        set -gx ANTHROPIC_API_KEY (op item get kyapm6qumqcvjzzmtqvvypxmi4 --reveal --fields credential || echo "")
-    end
+# Keys come from 1Password instead of llm's own keys.json, which is deleted.
+# A function, not a script: ~/.local/bin/llm comes first on PATH, so only a
+# function shadows it. set -lx keeps the keys out of the shell environment.
+function llm --description "llm with API keys read from 1Password"
+    set -lx OPENAI_API_KEY (mail-pass 'op://Private/cfx7ecmfy3pc7a3zcc7vr2fmhe/apikey')
+    set -lx ANTHROPIC_API_KEY (mail-pass 'op://Private/kyapm6qumqcvjzzmtqvvypxmi4/apikey')
+    command llm $argv
 end
 
 if status is-login; and test -z "$DISPLAY"; and test (tty) = "/dev/tty1"
