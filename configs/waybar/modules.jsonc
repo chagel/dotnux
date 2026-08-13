@@ -167,8 +167,10 @@
 		"interval": 30,
 		// GNOME Calendar holds both Google accounts through evolution-data-server;
 		// the web app is the fallback on the right button.
-		"on-click": "gnome-calendar",
-		"on-click-right": "xdg-open https://calendar.google.com"
+		// setsid, or the clock freezes: waybar waits on a click handler as its
+		// own child, and the module stops updating until that child exits.
+		"on-click": "setsid gnome-calendar",
+		"on-click-right": "setsid xdg-open https://calendar.google.com"
 	},
 	// Same module as "custom/clock", kept as a separate entry purely for styling:
 	// the right bar's clock stands alone and has to round both ends, while the
@@ -179,10 +181,8 @@
 		"exec": "waybar-clock",
 		"return-type": "json",
 		"interval": 30,
-		// GNOME Calendar holds both Google accounts through evolution-data-server;
-		// the web app is the fallback on the right button.
-		"on-click": "gnome-calendar",
-		"on-click-right": "xdg-open https://calendar.google.com"
+		"on-click": "setsid gnome-calendar",
+		"on-click-right": "setsid xdg-open https://calendar.google.com"
 	},
 	"backlight": {
 		"device": "intel_backlight",
