@@ -51,3 +51,6 @@ configs/kitty/colors.conf
 configs/ghostty/colors
 configs/hypr/colors.lua
 themes/nvim.lua
+
+# personal: calendar ids, account addresses, subscribed feed urls
+configs/vdirsyncer/config
