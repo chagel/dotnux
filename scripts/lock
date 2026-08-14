@@ -3,4 +3,10 @@
 LOCK_ROOT="$HOME/Pictures/wallpaper/hd"
 IMG=$(ls $LOCK_ROOT/*.* | shuf -n1)
 
-swaylock -f -c 000000 -i $IMG --indicator-radius 120 --indicator-thickness 20
+# The lock ground comes from the active theme. Read rather than templated:
+# scripts/theme only renders static configs, not executables. Falls back to
+# black so this still locks if the symlink is missing.
+BG=$(sed -n 's/^lock_bg=\([0-9a-fA-F]\{6\}\).*/\1/p' "$HOME/Dotfiles/themes/current.conf" 2>/dev/null)
+BG=${BG:-000000}
+
+swaylock -f -c "$BG" -i $IMG --indicator-radius 120 --indicator-thickness 20

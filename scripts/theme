@@ -1,0 +1,124 @@
+#!/bin/bash
+#
+# Render every *.tpl from a palette in themes/, then reload what can be
+# reloaded.
+#
+#   theme            print the active theme
+#   theme list       list available themes
+#   theme set <name> render and apply
+#
+# Templates use {{ key }} for bare hex and {{ key.rgb }} for a decimal triple,
+# which is all CSS needs that raw hex cannot give. Everything else -- the '#',
+# fuzzel's trailing alpha, hyprland's rgba(hhhhhhaa) -- is punctuation the
+# template writes itself.
+#
+# Only static configs are templated. Scripts read themes/current.conf directly,
+# so nothing generates an executable.
+
+set -euo pipefail
+
+BASE=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+THEMES="$BASE/themes"
+CURRENT="$THEMES/current.conf"
+
+notify() {
+  command -v notify-send > /dev/null 2>&1 && notify-send -u critical theme "$1"
+  echo "theme: $1" >&2
+}
+
+declare -A VAL RGB
+
+load() {
+  local file=$1 key val
+  while IFS='=' read -r key val; do
+    if [[ $key =~ ^[[:space:]]*(#|$) ]]; then continue; fi
+    key=${key//[[:space:]]/}; val=${val%%#*}; val=${val//[[:space:]]/}
+    [[ -n $key && -n $val ]] || continue
+    VAL[$key]=$val
+    RGB[$key]="$((16#${val:0:2})), $((16#${val:2:2})), $((16#${val:4:2}))"
+  done < "$file"
+}
+
+render() {
+  local content key
+  content=$(cat "$1")
+  for key in "${!VAL[@]}"; do
+    content=${content//"{{ $key }}"/${VAL[$key]}}
+    content=${content//"{{ $key.rgb }}"/${RGB[$key]}}
+  done
+  # a leftover placeholder means the palette is missing a key -- fail loudly
+  # rather than writing a config with "{{ accent }}" in it
+  if [[ $content == *'{{'* ]]; then
+    notify "unresolved placeholder in $1: $(grep -o '{{[^}]*}}' <<< "$content" | sort -u | tr '\n' ' ')"
+    exit 1
+  fi
+  printf '%s\n' "$content"
+}
+
+apply() {
+  local name=$1 tpl out
+  [[ -f "$THEMES/$name.conf" ]] || { notify "no such theme: $name"; exit 1; }
+
+  load "$THEMES/$name.conf"
+  ln -sfn "$name.conf" "$CURRENT"
+
+  while IFS= read -r tpl; do
+    out=${tpl%.tpl}
+    render "$tpl" > "$out"
+    echo "  rendered $(realpath --relative-to="$BASE" "$out")"
+    # themes/ holds templates whose output cannot live under configs/ --
+    # nvim's, because ~/.config/nvim is the dotbase submodule
+  done < <(find "$BASE/configs" "$THEMES" -name '*.tpl' | sort)
+}
+
+reload() {
+  # kitty and ghostty recolour running windows; waybar has to be restarted;
+  # fuzzel, swaylock and mutt read their config at launch, so they need nothing
+  kitty @ --to unix:/tmp/kitty set-colors -a -c "$BASE/configs/kitty/colors.conf" 2> /dev/null \
+    && echo "  kitty recoloured" || true
+  # ghostty reloads per window over its own IPC; no socket, so running windows
+  # keep their colours until reopened
+  pkill -USR2 -x ghostty 2> /dev/null && echo "  ghostty signalled" || true
+  if pkill -x waybar 2> /dev/null; then
+    setsid waybar > /dev/null 2>&1 < /dev/null &
+    disown
+    echo "  waybar restarted"
+  fi
+  hyprctl reload > /dev/null 2>&1 && echo "  hyprland reloaded" || true
+
+  # running nvim instances re-apply over their own socket. --remote-expr
+  # evaluates rather than sending keystrokes, so it cannot knock someone out of
+  # insert mode the way --remote-send would.
+  local sock n=0
+  for sock in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/nvim.*; do
+    [[ -S $sock ]] || continue
+    # bounded: an unresponsive socket (an --embed instance, or one whose nvim
+    # died leaving the socket behind) would otherwise block the switch forever
+    timeout 2 nvim --server "$sock" --remote-expr \
+      'luaeval("dofile(vim.fn.expand(\"~/Dotfiles/themes/nvim-apply.lua\")) or 1")' \
+      > /dev/null 2>&1 && n=$((n + 1))
+  done
+  [[ $n -gt 0 ]] && echo "  nvim re-themed ($n running)" || true
+}
+
+case "${1-}" in
+  list)
+    for t in "$THEMES"/*.conf; do
+      [[ $(basename "$t") == current.conf ]] && continue
+      basename "$t" .conf
+    done
+    ;;
+  set)
+    [[ -n ${2-} ]] || { notify "usage: theme set <name>"; exit 1; }
+    apply "$2"
+    reload
+    echo "theme: $2"
+    ;;
+  ""|current)
+    basename "$(readlink "$CURRENT" 2> /dev/null || echo none)" .conf
+    ;;
+  *)
+    notify "unknown command: $1"
+    exit 1
+    ;;
+esac

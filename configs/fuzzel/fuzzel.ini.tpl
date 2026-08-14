@@ -37,12 +37,12 @@ line-height=25
 # exit-on-keyboard-focus-loss = yes
 
 [colors]
-background=1e1e2eff
-text=657b83ff
-match=50fa7bff
-selection=44475aff
-selection-text=f8f8f2ff
-border=44475aff
+background={{ bg }}ee
+text={{ fg }}ff
+match={{ accent }}ff
+selection={{ muted }}ff
+selection-text={{ fg }}ff
+border={{ muted }}ff
 
 [border]
 width=10

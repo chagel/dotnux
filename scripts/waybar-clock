@@ -21,11 +21,34 @@ import subprocess
 import time
 from datetime import date, datetime
 
-MONTH = "#D3D04F"
-WEEKDAY = "#8EAC50"
-DAY = "#93B1A6"
-TODAY = "#8EAC50"  # today is a filled chip, so this is its background
-INK = "#1A1A1A"    # dark enough to read on that chip
+def _palette():
+    """Colours from the active theme, so the tooltip matches the bar.
+
+    A script reads the palette rather than being generated from a template:
+    scripts/theme only renders static configs, and generating an executable to
+    change five constants is not worth it. Falls back to Mocha if the symlink
+    is missing, so this still runs standalone.
+    """
+    theme = os.path.expanduser("~/Dotfiles/themes/current.conf")
+    values = {}
+    try:
+        with open(theme) as fh:
+            for line in fh:
+                line = line.split("#")[0].strip()
+                if "=" in line:
+                    key, _, val = line.partition("=")
+                    values[key.strip()] = "#" + val.strip()
+    except OSError:
+        pass
+    return values
+
+
+_P = _palette()
+MONTH = _P.get("cal_month", "#f9e2af")
+WEEKDAY = _P.get("cal_weekday", "#a6e3a1")
+DAY = _P.get("cal_day", "#94e2d5")
+TODAY = _P.get("cal_today", "#cba6f7")  # today is a filled chip, so a background
+INK = _P.get("cal_ink", "#1e1e2e")      # dark enough to read on that chip
 
 WIDTH = 20  # "Su Mo Tu We Th Fr Sa"
 GAP = "   "  # between the two month grids

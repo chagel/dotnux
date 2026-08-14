@@ -10,17 +10,17 @@
 
 window#waybar {
     border-radius: 10px;
-    background: rgba(15, 15, 15, 0.85);
-    color: #CCCCCC;
+    background: rgba({{ bar_bg.rgb }}, 0.85);
+    color: #{{ bar_fg }};
 }
 
 tooltip {
-    background: #0F0F0F;
+    background: #{{ bar_bg }};
     border-radius: 6px;
 }
 
 tooltip label {
-    color: #93B1A6;
+    color: #{{ accent }};
 }
 
 /* Workspace indicators — custom/ws1..ws9, see config.jsonc */
@@ -39,11 +39,11 @@ tooltip label {
     padding: 6px 4px;
     border-radius: 20px;
     margin: 0 4px 5px 0;
-    /* transparent, not #0F0F0F: these matched the bar exactly when it was
+    /* transparent, not #{{ bar_bg }}: these matched the bar exactly when it was
        opaque, so they read as invisible spacers. Against a translucent bar the
        same colour would show through as darker patches. */
     background: transparent;
-    color: #333333;
+    color: #{{ muted }};
 }
 
 #custom-ws1 {
@@ -62,7 +62,7 @@ tooltip label {
 #custom-ws7.active,
 #custom-ws8.active,
 #custom-ws9.active {
-    color: #CCC;
+    color: #{{ bar_fg }};
 }
 
 #clock,
@@ -73,7 +73,7 @@ tooltip label {
 #bluetooth,
 #backlight {
     padding: 0px 14px;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba({{ chip.rgb }}, 0.55);
 }
 
 /* #network opens the status group, so it carries the rounded left edge that
@@ -110,8 +110,8 @@ tooltip label {
 
 /* The Shanghai clock is still a built-in clock module, so it styles as #clock
    and never picks up the #custom-clock rounding above. It only needs to read as
-   secondary: dimmer than the bar's #CCCCCC so the foreign time sits behind the
+   secondary: dimmer than the bar's #{{ bar_fg }} so the foreign time sits behind the
    local clock next to it. */
 #clock.shanghai {
-    color: #888888;
+    color: #{{ dim }};
 }

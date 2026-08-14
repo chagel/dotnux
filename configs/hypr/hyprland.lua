@@ -101,6 +101,12 @@ hl.env("QUTE_QT_WRAPPER", "PyQt6")
 ---- LOOK AND FEEL ----
 -----------------------
 
+-- Border and shadow colours from the active theme. dofile rather than a
+-- templated hyprland.lua: this file is edited constantly and should not become
+-- a build artefact. scripts/theme regenerates colors.lua.
+local theme = dofile(os.getenv("HOME") .. "/.config/hypr/colors.lua")
+
+
 -- See https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
     xwayland = {
@@ -114,8 +120,8 @@ hl.config({
         border_size = 2,
 
         col = {
-            active_border   = { colors = { "rgba(3f1e85cc)", "rgba(8f11a0cc)" }, angle = 45 },
-            inactive_border = "rgba(595959aa)",
+            active_border   = { colors = { theme.border_from, theme.border_to }, angle = 45 },
+            inactive_border = theme.border_off,
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
@@ -138,7 +144,7 @@ hl.config({
             enabled      = true,
             range        = 4,
             render_power = 3,
-            color        = "rgba(1a1a1aee)",
+            color        = theme.shadow,
         },
 
         blur = {
@@ -435,6 +441,7 @@ hl.bind("CONTROL + SHIFT + ALT + E", hl.dsp.exec_cmd(fileManager))
 hl.bind("CONTROL + SHIFT + ALT + B", hl.dsp.exec_cmd(browser))
 hl.bind("CONTROL + SHIFT + ALT + D", hl.dsp.exec_cmd("define"))
 hl.bind("CONTROL + SHIFT + ALT + A", hl.dsp.exec_cmd("llm-chat"))
+hl.bind("CONTROL + SHIFT + ALT + T", hl.dsp.exec_cmd("theme-select"))
 hl.bind("CONTROL + SHIFT + ALT + L", hl.dsp.exec_cmd("lock"))
 hl.bind("CONTROL + SHIFT + ALT + N", hl.dsp.exec_cmd(terminal .. " --title=scratchpad --window-width=120 --window-height=34 -e vim /home/mike/.scratch.note"))
 -- omasnap maps its layer surface 1:1 to monitor pixels, so the global

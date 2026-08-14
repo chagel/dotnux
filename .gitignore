@@ -42,3 +42,12 @@ configs/qutebrowser/bookmarks/urls
 configs/qutebrowser/autoconfig.yml
 
 configs/hypr/hyprland.conf
+
+# generated from themes/<name>.conf by scripts/theme -- the .tpl is the source
+configs/waybar/style.css
+themes/current.conf
+configs/fuzzel/fuzzel.ini
+configs/kitty/colors.conf
+configs/ghostty/colors
+configs/hypr/colors.lua
+themes/nvim.lua

@@ -3,6 +3,13 @@ onboarding = false
 # muscle memory carries over between the two multiplexers.
 # Validate changes with `herdr config check`, apply with `herdr server reload-config`.
 
+[theme]
+# "terminal" makes herdr take its palette from the host terminal, which
+# scripts/theme already themes -- so herdr follows the active theme with no
+# per-theme work, the same way mutt and btop do. Naming a built-in here
+# instead would pin herdr to one palette while everything else changed.
+name = "terminal"
+
 [keys]
 prefix = "`"                      # tmux: set -g prefix `
 
