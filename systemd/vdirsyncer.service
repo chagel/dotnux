@@ -5,6 +5,12 @@ Description=Calendar synchronization service
 Type=oneshot
 StandardOutput=null
 StandardError=journal
+# Same reason as mbsync.service: oneshot defaults to an infinite start timeout,
+# and both passes reach 1Password through mail-pass. A hung `op read` would
+# leave the unit activating forever, and OnUnitActiveSec only re-arms once it
+# goes inactive -- so calendar sync would stop for good, silently. Twelve
+# collections over the network take well under a minute; bound it generously.
+TimeoutStartSec=10m
 ExecStart=/usr/bin/vdirsyncer sync
 # Display names and colours are a separate pass, and the tooltip colours events
 # by them -- a calendar renamed or recoloured in Google would otherwise never
