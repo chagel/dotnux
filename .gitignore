@@ -54,3 +54,7 @@ themes/nvim.lua
 
 # personal: calendar ids, account addresses, subscribed feed urls
 configs/vdirsyncer/config
+
+# written by `omarchy font set`; the preferences it must not clobber are in
+# configs/fontconfig/conf.d/ instead
+configs/fontconfig/fonts.conf
