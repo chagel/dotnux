@@ -1,31 +1,29 @@
-# dotnux - Dotfiles for Linux
+# dotnux — Dotfiles for Linux
 
-This repository contains my dotfiles for Linux, building on the foundation provided by the [dotbase](https://github.com/chagel/dotbase) repository.
+My Linux dotfiles. The shared base — Vim, tmux, fish — lives in
+[dotbase](https://github.com/chagel/dotbase) as a submodule, so it can be updated
+without touching anything specific to this setup. This repo holds the rest: fish,
+ghostty, mail, calendar, input method, Hyprland and the scripts around them.
 
-The base configuration is maintained in the [dotbase](dotbase) repository, while this repository holds the specific configurations tailored for my setup. By structuring it this way, I can easily update the base configuration and customize my setup without conflicts. Submodules are used to incorporate the base configuration into this repository.
+This machine runs [Omarchy](https://omarchy.org/).
 
-This repository also serves as an example to demonstrate how to use the [dotbase](dotbase) repository. I hope you find it useful and inspiring. :)
+- [docs/install.md](docs/install.md) — setting up a fresh machine
+- [docs/omarchy.md](docs/omarchy.md) — how customization stays out of the files
+  Omarchy manages
 
-## Features
-- **Base Configurations:** Includes settings for Vim, tmux, and more (from dotbase).
-- **Specific Configurations:** Custom settings for fish, ghostty, mail and calendar.
-- **Omarchy:** This machine runs [Omarchy](https://omarchy.org/); see [docs/omarchy.md](docs/omarchy.md) for how customization is kept out of the files it manages.
-- **Scripts:** Collection of useful tools and hacks.
-- **Makefile:** Human-readable commands for easy management.
+## Commands
 
-## Installation
-1. Clone this repository:
-   ```sh
-   git clone https://github.com/chagel/dotnux.git
-   ```
-2. Check the `Makefile` for available commands.
-3. Run `make` to link the dotfiles:
-   ```sh
-   make
-   ```
-4. On Omarchy, `make` only links files -- follow
-   [docs/install.md](docs/install.md) for the session, credential, service and
-   plugin steps it does not automate.
+```sh
+make                 # link everything (init + setup)
+make audit           # check nothing we link is a file Omarchy rewrites
+make shell-capture   # record the live omarchy bar layout into the repo
+make shell-restore   # put it back after `omarchy refresh shell`
+make update          # update vim, tmux and fish plugins
+```
+
+`make` alone is enough on a machine that is already set up; a fresh one needs the
+credential, service and plugin steps in [docs/install.md](docs/install.md).
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+MIT — see [LICENSE](LICENSE).
