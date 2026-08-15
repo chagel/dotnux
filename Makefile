@@ -39,6 +39,20 @@ setup::
 	done
 	## desktop entries are only picked up after the database is rebuilt
 	@update-desktop-database ${HOME}/.local/share/applications
+	## fcitx5 loads themes only from its own directory, so the "omarchy" theme
+	## named in fcitx5/conf/classicui.conf is a bridge: theme.conf points at the
+	## file omarchy renders from configs/omarchy/themed/fcitx5.conf.tpl on every
+	## theme switch. The link is made here rather than in links.conf because it
+	## points into omarchy's state, not into this repo. Dangling until a theme
+	## has been applied once, which is harmless. The four images are the stock
+	## default theme's, byte for byte, so they are borrowed rather than tracked.
+	@mkdir -p ${HOME}/.local/share/fcitx5/themes/omarchy
+	@ln -vsfn ${HOME}/.local/state/omarchy/current/theme/fcitx5.conf \
+		${HOME}/.local/share/fcitx5/themes/omarchy/theme.conf
+	@for img in arrow next prev radio; do \
+		ln -sfn /usr/share/fcitx5/themes/default/$$img.png \
+			${HOME}/.local/share/fcitx5/themes/omarchy/$$img.png; \
+	done
 
 # shell.json is a copy rather than a link: omarchy-shell-config renders each
 # mutation to a temp file and `mv`s it over a literal path, which would replace
