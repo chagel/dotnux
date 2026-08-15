@@ -23,6 +23,9 @@ This repository also serves as an example to demonstrate how to use the [dotbase
    ```sh
    make
    ```
+4. On Omarchy, `make` only links files -- follow
+   [docs/install.md](docs/install.md) for the session, credential, service and
+   plugin steps it does not automate.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
