@@ -4,21 +4,35 @@
 plugins, so the steps below are ordered by what depends on what. See
 [omarchy.md](omarchy.md) for *why* customization is arranged the way it is.
 
-## 1. Log in through the uwsm session — do this first
+## 1. Check the graphical session came up
 
-At the login screen pick **"Hyprland (uwsm-managed)"**, not plain "Hyprland".
-
-Plain Hyprland runs `start-hyprland` directly, so `graphical-session.target`
-never activates. Everything `WantedBy` it stays dead — fcitx5, bt-agent,
-crash-watch, sleep-lock, voxtype — and the input-method variables Omarchy sets
-in `environment.d` never reach any app, because only the systemd user manager
-reads them. Wrong session here looks like half a dozen unrelated bugs later.
-
-Check it took:
+Omarchy 4 handles login itself: SDDM autologins into
+`/usr/local/share/wayland-sessions/omarchy.desktop`, which starts the compositor
+through uwsm. Nothing to choose and nothing to configure.
 
 ```sh
 systemctl --user is-active graphical-session.target   # expect: active
 ```
+
+This is worth checking because a lot hangs off it. Everything `WantedBy` that
+target — fcitx5, bt-agent, crash-watch, sleep-lock, voxtype — only starts when
+it activates, and the input-method variables Omarchy sets in `environment.d`
+only reach apps through the systemd user manager. When it is inactive the
+symptoms look like half a dozen unrelated bugs: no input method anywhere, no
+bluetooth agent, no crash notifications.
+
+If it reports `inactive`, start what is missing for the current session:
+
+```sh
+systemctl --user start omarchy-fcitx5.service bt-agent.service \
+  omarchy-crash-watch.service omarchy-sleep-lock.service voxtype.service
+```
+
+That lasts until logout. Two red herrings when digging into this: `start-hyprland`
+appears both as SDDM's own greeter `CompositorCommand` and as what
+`hyprland.desktop` execs under uwsm — neither means the session bypassed uwsm.
+The thing to look at is whether uwsm generated its units in
+`$XDG_RUNTIME_DIR/systemd/user/`.
 
 ## 2. Clone and link
 
