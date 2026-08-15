@@ -1,0 +1,308 @@
+#!/usr/bin/env python3
+"""Check that this repo's customizations still hold against the installed Omarchy.
+
+Every rule here exists because something broke, or nearly did. The point is that
+none of them rely on remembering: run `make audit`, or let the post-update hook
+run it after `omarchy update`, and drift is reported instead of discovered weeks
+later when a config has quietly stopped applying.
+
+See docs/omarchy.md for the model these checks enforce.
+
+  ok       invariant holds
+  warn     needs a human look, usually upstream moving
+  ERROR    a customization is broken or about to be
+
+Exits non-zero if any ERROR was reported. Pass --accept to re-record the
+upstream hashes in check 4 once the differences have been reviewed.
+"""
+
+import hashlib
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+CONFIG = HOME / ".config"
+REPO = Path(__file__).resolve().parent.parent
+OMARCHY = Path(os.environ.get("OMARCHY_PATH", "/usr/share/omarchy"))
+UPSTREAM_HASHES = REPO / "configs/omarchy/upstream.sha256"
+
+# Files Omarchy edits in place, as of the release this was last checked against.
+# Check 1 derives the real list from the installed scripts and diffs it against
+# this, so a new one shows up as a warning rather than as a lost config. Update
+# it when that warning is understood.
+KNOWN_REWRITE_TARGETS = {
+    ".config/alacritty/alacritty.toml",
+    ".config/foot/foot.ini",
+    ".config/ghostty/config",
+    ".config/kitty/kitty.conf",
+    ".config/omarchy/shell.json",
+}
+
+# Settings of ours that live in a file Omarchy owns, and the line that has to be
+# there for them to apply at all. `omarchy refresh` recopies the stock file and
+# drops these, which is silent -- the app keeps working, just without our
+# settings. See strategy 2 in docs/omarchy.md.
+REQUIRED_INCLUDES = [
+    (".config/ghostty/config", 'config-file = ?"local.conf"'),
+]
+
+# Upstream files this repo is coupled to, beyond the templates check 4 finds on
+# its own. Each is something we forked or reach into, so an upstream change is
+# something to read rather than something to inherit blindly.
+WATCHED_UPSTREAM = [
+    # configs/hypr/overrides/hyprland.lua is this file plus one flag.
+    "config/hypr/hyprland.lua",
+    # bindings.lua re-requires this module and unbinds specific keys out of it,
+    # so a bind renamed or moved upstream leaves a dead hl.unbind behind.
+    "default/hypr/bindings/utilities.lua",
+    # The shape our ghostty include line is added to.
+    "config/ghostty/config",
+    # What `omarchy refresh shell` would put back over our snapshot.
+    "config/omarchy/shell.json",
+]
+
+failures = warnings = 0
+
+
+def ok(msg):
+    print(f"  ok    {msg}")
+
+
+def warn(msg):
+    global warnings
+    warnings += 1
+    print(f"  warn  {msg}")
+
+
+def error(msg):
+    global failures
+    failures += 1
+    print(f"  ERROR {msg}")
+
+
+def head(n, title):
+    print(f"\n{n}. {title}")
+
+
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def links_conf_rows():
+    """(source, destination) for every real row in links.conf."""
+    rows = []
+    for line in (REPO / "links.conf").read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            rows.append((parts[0], os.path.expandvars(parts[1].replace("$HOME", str(HOME)))))
+    return rows
+
+
+# ---------------------------------------------------------------- check 1
+def check_rewrite_targets():
+    head(1, "Files Omarchy rewrites in place must not be symlinks")
+
+    # Both writers replace the destination path rather than editing through it:
+    # `sed -i` renames its temp file over the target, and omarchy-shell-config
+    # `mv`s a mktemp file over a literal path. Either one turns a link into a
+    # regular file and takes the config out of git.
+    pattern = re.compile(r"(?:sed[^\n|]*?-i|mv\s)[^\n]*?(?:\$HOME|~|\$\{HOME\})(/\.config/[\w./-]+)")
+    derived = set()
+    for script in sorted(Path("/usr/bin").glob("omarchy-*")):
+        try:
+            text = script.read_text(errors="ignore")
+        except OSError:
+            continue
+        for m in pattern.finditer(text):
+            target = m.group(1)
+            # A trailing slash means the mv lands a file *inside* a directory
+            # (backgrounds/, say) rather than replacing a config file.
+            if target.endswith("/"):
+                continue
+            derived.add(target.lstrip("/"))
+
+    # omarchy-shell-config assigns CONFIG_FILE once and mv's to the variable, so
+    # the path never appears on the mv line itself.
+    for script in sorted(Path("/usr/bin").glob("omarchy-*")):
+        try:
+            text = script.read_text(errors="ignore")
+        except OSError:
+            continue
+        for m in re.finditer(r'^\s*\w*CONFIG_FILE="\$HOME(/\.config/[\w./-]+)"', text, re.M):
+            if re.search(r'mv\s+"?\$\w*CONFIG_FILE|mv\s+"\$\w+"\s+"\$\w*CONFIG_FILE', text):
+                derived.add(m.group(1).lstrip("/"))
+
+    if not derived:
+        warn("found no in-place writers -- the detection pattern may have gone stale")
+    else:
+        ok(f"{len(derived)} in-place write target(s) detected in omarchy-* scripts")
+
+    for extra in sorted(derived - KNOWN_REWRITE_TARGETS):
+        warn(f"new in-place write target, not in KNOWN_REWRITE_TARGETS: {extra}")
+    for gone in sorted(KNOWN_REWRITE_TARGETS - derived):
+        warn(f"no longer detected as rewritten (may just be undetectable now): {gone}")
+
+    for rel in sorted(KNOWN_REWRITE_TARGETS | derived):
+        path = HOME / rel
+        if not path.exists():
+            continue
+        if path.is_symlink():
+            error(f"{rel} is a symlink -- Omarchy will replace it and unlink the repo copy")
+        else:
+            ok(f"{rel} is a regular file")
+
+
+# ---------------------------------------------------------------- check 2
+def check_links_conf():
+    head(2, "links.conf rows resolve, and their destinations stay real directories")
+    for src, dst in links_conf_rows():
+        source, dest = REPO / src, Path(dst)
+        if not source.is_dir():
+            error(f"{src} named in links.conf does not exist in the repo")
+            continue
+        if not dest.exists():
+            warn(f"{dst} does not exist yet (make init creates it)")
+            continue
+        if dest.is_symlink():
+            error(f"{dst} is a symlink, but a per-entry row needs it to stay a real directory")
+            continue
+
+        linked = 0
+        for item in sorted(source.iterdir()):
+            target = dest / item.name
+            if target.is_symlink() and Path(os.path.realpath(target)) == item.resolve():
+                linked += 1
+            elif target.exists():
+                error(f"{target} exists but is not our link (run make setup)")
+            else:
+                warn(f"{item.name} from {src} is not linked into {dst} (run make setup)")
+        if linked:
+            ok(f"{src} -> {dst} ({linked} entr{'y' if linked == 1 else 'ies'} linked)")
+
+
+# ---------------------------------------------------------------- check 3
+def check_wholedir_hazard():
+    head(3, "Whole-directory links have somewhere to land")
+
+    # base.mk links each remaining configs/<name> with `ln -sfn`. -n only helps
+    # when the destination is already a link: against a real directory ln drops
+    # the link *inside* it instead, which is silent and does nothing useful.
+    per_entry = {row[0].split("/")[1] for row in links_conf_rows() if row[0].startswith("configs/")}
+
+    for source in sorted((REPO / "configs").iterdir()):
+        if not source.is_dir() or source.name in per_entry:
+            continue
+        dest = CONFIG / source.name
+        nested = dest / source.name
+        if nested.is_symlink():
+            error(f"{nested} is a stray nested link from ln -sfn against a real directory")
+        if not dest.exists():
+            ok(f"configs/{source.name} -> not linked yet, destination free")
+        elif dest.is_symlink():
+            actual = Path(os.path.realpath(dest))
+            if actual == source.resolve():
+                ok(f"configs/{source.name} linked whole")
+            elif REPO in actual.parents:
+                # base.mk links some destinations to dotbase and then drops
+                # individual files from configs/ on top -- fish works this way.
+                ok(f"configs/{source.name} -> {dest} points at {actual.relative_to(REPO)}")
+            else:
+                warn(f"{dest} is a link, but to {actual}, outside this repo")
+        else:
+            error(
+                f"{dest} is a real directory, so whole-dir linking configs/{source.name} "
+                "cannot land -- give it a links.conf row instead"
+            )
+
+
+# ---------------------------------------------------------------- check 4
+def check_upstream_drift(accept=False):
+    head(4, "Upstream files we forked or shadow have not moved")
+
+    # A fork stays correct only as long as the thing it was forked from stays
+    # put. Recording the hash we forked at turns a silent upstream change into
+    # a reviewable one.
+    recorded = {}
+    if UPSTREAM_HASHES.exists():
+        for line in UPSTREAM_HASHES.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                digest, _, path = line.partition("  ")
+                recorded[path.strip()] = digest
+
+    watched = set(recorded)
+    for rel in WATCHED_UPSTREAM:
+        watched.add(str(OMARCHY / rel))
+    # Every user template shadows the stock one of the same name, so the stock
+    # one moving means ours is now missing whatever upstream added.
+    for tpl in sorted((REPO / "configs/omarchy/themed").glob("*.tpl")):
+        stock = OMARCHY / "default/themed" / tpl.name
+        if stock.exists():
+            watched.add(str(stock))
+
+    if not watched:
+        warn("nothing recorded to watch -- add paths with --accept")
+        return
+
+    updates = {}
+    for path in sorted(watched):
+        p = Path(path)
+        if not p.exists():
+            warn(f"{path} has disappeared upstream")
+            continue
+        current = sha256(p)
+        if path not in recorded:
+            warn(f"{path} is not recorded yet (--accept to record)")
+            updates[path] = current
+        elif recorded[path] != current:
+            warn(f"{path} changed upstream -- review our copy against it")
+            updates[path] = current
+        else:
+            ok(f"{path} unchanged")
+
+    if accept and updates:
+        merged = {**recorded, **updates}
+        UPSTREAM_HASHES.parent.mkdir(parents=True, exist_ok=True)
+        UPSTREAM_HASHES.write_text(
+            "# sha256 of the upstream files this repo forks or shadows, recorded by\n"
+            "# `scripts/omarchy-audit --accept` once a change has been reviewed.\n"
+            + "".join(f"{d}  {p}\n" for p, d in sorted(merged.items()))
+        )
+        print(f"\n  recorded {len(updates)} hash(es) into {UPSTREAM_HASHES.relative_to(REPO)}")
+
+
+# ---------------------------------------------------------------- check 5
+def check_required_includes():
+    head(5, "Our settings are still included by the files Omarchy owns")
+    for rel, needle in REQUIRED_INCLUDES:
+        path = HOME / rel
+        if not path.exists():
+            warn(f"{rel} does not exist")
+            continue
+        if needle in path.read_text():
+            ok(f"{rel} still includes our file")
+        else:
+            error(f"{rel} lost `{needle}` -- our settings there are not applying")
+
+
+def main():
+    accept = "--accept" in sys.argv
+    print(f"omarchy-audit: repo {REPO}, omarchy {OMARCHY}")
+    check_rewrite_targets()
+    check_links_conf()
+    check_wholedir_hazard()
+    check_upstream_drift(accept)
+    check_required_includes()
+
+    print(f"\n{failures} error(s), {warnings} warning(s)")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

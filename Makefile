@@ -59,3 +59,13 @@ setup::
 # of truth. Take a snapshot once the bar is how you want it.
 shell-capture:
 	@cp -v ${HOME}/.config/omarchy/shell.json $(BASE)/configs/omarchy/shell.json
+
+# Check the invariants in docs/omarchy.md against the installed Omarchy. Also
+# runs from configs/omarchy/hooks/post-update.d after every `omarchy update`,
+# which is the point: upstream moving is reported, not discovered later.
+audit:
+	@$(BASE)/scripts/omarchy-audit
+
+# Re-record the upstream hashes once the reported changes have been reviewed.
+audit-accept:
+	@$(BASE)/scripts/omarchy-audit --accept

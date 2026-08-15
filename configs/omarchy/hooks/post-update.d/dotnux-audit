@@ -1,0 +1,30 @@
+#!/bin/bash
+# Report customization drift right after `omarchy update`, while the update is
+# still the obvious cause.
+#
+# An Omarchy release can move a file we forked, start rewriting one we link, or
+# refresh a config whose include line carries our settings -- none of which
+# announces itself. The audit knows every one of those couplings; this just
+# makes sure it actually runs at the moment they can change.
+#
+# Advisory only: it never blocks the update, and the notification is there
+# because a post-update hook's stdout scrolls past unread.
+
+set -uo pipefail
+
+AUDIT="$HOME/Dotfiles/scripts/omarchy-audit"
+[[ -x $AUDIT ]] || exit 0
+
+output=$("$AUDIT" 2>&1)
+status=$?
+
+echo "$output"
+
+if ((status != 0)); then
+  summary=$(grep -c '^  ERROR' <<< "$output" || true)
+  omarchy-notification-send -u critical \
+    "Dotnux: $summary customization error(s) after update" \
+    "Run 'make audit' in ~/Dotfiles for details." 2>/dev/null || true
+fi
+
+exit 0
