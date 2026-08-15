@@ -32,6 +32,9 @@ o.bind("CONTROL + SHIFT + ALT + K", "Keybindings", "omarchy-menu-keybindings")
 -- so both reach omarchy-system-lock.
 o.bind("CONTROL + SHIFT + ALT + L", "Lock system", "omarchy-system-lock")
 
+-- Screenshot likewise, alongside the PRINT bind utilities.lua still holds.
+o.bind("CONTROL + SHIFT + ALT + S", "Screenshot", "omarchy-capture-screenshot")
+
 o.bind(mainMod .. " + Q", "Close window", hl.dsp.window.close())
 
 -- Focus with mainMod + hjkl.
