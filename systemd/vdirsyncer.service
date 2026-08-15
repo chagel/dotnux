@@ -16,3 +16,7 @@ ExecStart=/usr/bin/vdirsyncer sync
 # by them -- a calendar renamed or recoloured in Google would otherwise never
 # catch up.
 ExecStartPost=/usr/bin/vdirsyncer metasync
+# Feed the omarchy-shell calendar widget (tmn73.calendar), which reads a plain
+# JSON file and does not care who writes it. Runs after metasync so the event
+# colours are the ones Google currently has, not the previous run's.
+ExecStartPost=%h/Dotfiles/scripts/calendar-events

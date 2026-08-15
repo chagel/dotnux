@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""Export khal's view of the synced calendars as omarchy-calendar's event feed.
+
+The tmn73.calendar widget reads ~/.local/state/omarchy/calendar-events.json and
+does not care who wrote it -- its own sync path talks to the Google API with a
+second set of OAuth credentials, which this machine has no use for: vdirsyncer
+already pulls every calendar into ~/.calendars and khal already expands the
+recurrences. So this walks that pipeline one step further instead.
+
+khal is doing the real work here. It globs the vdirs, expands RRULEs into
+individual occurrences, and carries the displayname and colour vdirsyncer wrote
+beside each collection -- which is why the fields below come out of `khal list
+--json` rather than being parsed from the .ics files.
+
+Run by vdirsyncer.service after each sync; safe to run by hand.
+"""
+
+import json
+import os
+import subprocess
+import sys
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+# Matches the widget's own window defaults in calendar-sync.json, so switching
+# between this producer and the bundled one does not change what is on screen.
+PAST_DAYS = int(os.environ.get("CALENDAR_PAST_DAYS", "7"))
+FUTURE_DAYS = int(os.environ.get("CALENDAR_FUTURE_DAYS", "60"))
+
+OUT = Path(
+    os.environ.get(
+        "CALENDAR_EVENTS_FILE",
+        Path.home() / ".local/state/omarchy/calendar-events.json",
+    )
+)
+
+# khal's [locale] longdateformat/longdatetimeformat, which is what start-long
+# and end-long are rendered with. Read them here rather than assuming, so a
+# change in khal's config surfaces as a parse error instead of silent nonsense.
+DATE_FMT = "%Y-%m-%d"
+DATETIME_FMT = "%Y-%m-%d %H:%M"
+
+FIELDS = [
+    "uid",
+    "title",
+    "start-long",
+    "end-long",
+    "all-day",
+    "calendar",
+    "calendar-color",
+    "location",
+    "url",
+    "description",
+]
+
+
+def khal_events(start, end):
+    """Every occurrence khal reports in [start, end], as one flat list.
+
+    `khal list --json` emits a separate JSON array per day, so the output is a
+    stream of concatenated arrays rather than one document. raw_decode walks it
+    without caring how the days are split across lines.
+    """
+    # No --once: that collapses a recurring event to a single line, and the
+    # widget needs one entry per occurrence to place it on a day.
+    cmd = ["khal", "list"]
+    for f in FIELDS:
+        cmd += ["--json", f]
+    cmd += [start.strftime(DATE_FMT), end.strftime(DATE_FMT)]
+
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    # khal exits non-zero on a real failure, but also warns on stderr about
+    # ambiguous dates in some locales -- only the exit code is load-bearing.
+    if proc.returncode != 0:
+        sys.exit(f"khal failed ({proc.returncode}): {proc.stderr.strip()}")
+
+    out, decoder, idx = proc.stdout, json.JSONDecoder(), 0
+    events = []
+    while idx < len(out):
+        if out[idx].isspace():
+            idx += 1
+            continue
+        chunk, idx = decoder.raw_decode(out, idx)
+        events.extend(chunk)
+    return events
+
+
+def local_iso(stamp, all_day):
+    """khal renders wall-clock time with no offset; the widget wants ISO 8601.
+
+    Attaching the *local* offset for that specific instant keeps events correct
+    across a DST boundary, which a single fixed offset would not.
+    """
+    if all_day:
+        return datetime.strptime(stamp, DATE_FMT).date().isoformat()
+    naive = datetime.strptime(stamp, DATETIME_FMT)
+    return naive.astimezone().isoformat()
+
+
+def hex6(color):
+    """vdirsyncer stores Google's colour as #RRGGBBAA; the widget wants #RRGGBB."""
+    color = (color or "").strip()
+    if len(color) == 9 and color.startswith("#"):
+        return color[:7]
+    return color or None
+
+
+def convert(raw):
+    all_day = raw.get("all-day") == "True"
+    start_raw, end_raw = raw.get("start-long", ""), raw.get("end-long", "")
+    if not start_raw:
+        return None
+
+    start = local_iso(start_raw, all_day)
+    end = local_iso(end_raw, all_day) if end_raw else start
+
+    # A recurring event repeats its UID across every occurrence, so the UID
+    # alone is not a stable *per-event* id -- pairing it with the start is.
+    uid = raw.get("uid") or raw.get("title", "")
+    calendar = raw.get("calendar", "")
+
+    event = {
+        "id": f"{uid}@{start}",
+        "calendarId": calendar,
+        "calendarName": calendar,
+        "dateKey": start[:10],
+        "start": start,
+        "end": end,
+        "allDay": all_day,
+        "title": raw.get("title", ""),
+        "location": raw.get("location", "") or "",
+    }
+
+    color = hex6(raw.get("calendar-color"))
+    if color:
+        event["color"] = color
+    if raw.get("url"):
+        event["eventUrl"] = raw["url"]
+    return event
+
+
+def main():
+    today = date.today()
+    events = [
+        e
+        for e in (
+            convert(r)
+            for r in khal_events(
+                today - timedelta(days=PAST_DAYS), today + timedelta(days=FUTURE_DAYS)
+            )
+        )
+        if e
+    ]
+    events.sort(key=lambda e: (e["start"], e["title"]))
+
+    payload = {
+        "version": 1,
+        "syncedAt": datetime.now().astimezone().isoformat(),
+        "source": "khal via vdirsyncer",
+        "events": events,
+    }
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    # Write-then-rename: the widget watches this file, and a partial write would
+    # otherwise be read as a truncated document.
+    tmp = OUT.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=1))
+    tmp.replace(OUT)
+
+    print(f"{len(events)} events -> {OUT}")
+
+
+if __name__ == "__main__":
+    main()
