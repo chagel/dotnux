@@ -1,0 +1,34 @@
+#!/bin/bash
+# Follow the system font in the fcitx5 candidate popup.
+#
+# The font lives in classicui.conf, not in the generated theme -- fcitx5 keeps
+# colors (theme.conf) and fonts (addon config) in separate files, so the
+# theme-set template cannot carry it and this needs its own hook.
+#
+# omarchy-font-set passes the font name as $1; fall back to querying it so the
+# hook also works when run by hand.
+
+set -euo pipefail
+
+font="${1:-$(omarchy font current 2>/dev/null)}"
+[[ -n $font ]] || exit 0
+
+conf="$HOME/.config/fcitx5/conf/classicui.conf"
+[[ -f $conf ]] || exit 0
+
+# Point size is fcitx5's own -- omarchy's font setting carries a family only,
+# and each terminal picks its own size the same way.
+size=10
+
+# fcitx5 writes its own config as bare Key=Value -- no quoting, spaces kept
+# verbatim -- so the descriptor goes in unquoted as "<family> <size>".
+for key in Font MenuFont TrayFont; do
+  if grep -q "^$key=" "$conf"; then
+    sed -i "s|^$key=.*|$key=$font $size|" "$conf"
+  else
+    printf '%s=%s %s\n' "$key" "$font" "$size" >>"$conf"
+  fi
+done
+
+pgrep -x fcitx5 >/dev/null || exit 0
+fcitx5-remote -r 2>/dev/null || true

@@ -12,7 +12,11 @@ ROW   := NF && $$1 !~ /^\#/
 # at the repo and leave the state living there nowhere to go. Recipes expand when
 # the rule runs, so narrowing CONFIGS after the include still reaches base.mk's
 # setup::.
-PER_ENTRY := $(shell awk '$(ROW) && $$1 ~ /^configs\// {sub(/^configs\//, "", $$1); print $$1}' $(LINKS))
+#
+# Only the first path component counts: CONFIGS holds the top-level names from
+# `ls configs`, so a row reaching deeper (configs/omarchy/themed) still has to
+# exclude the name base.mk would match on (omarchy).
+PER_ENTRY := $(shell awk '$(ROW) && $$1 ~ /^configs\// {sub(/^configs\//, "", $$1); sub(/\/.*/, "", $$1); print $$1}' $(LINKS))
 CONFIGS   := $(filter-out $(PER_ENTRY),$(CONFIGS))
 
 init::
