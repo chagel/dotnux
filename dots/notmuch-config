@@ -12,7 +12,9 @@
 #
 
 [database]
-path=/home/mike/.mail
+# Relative paths are resolved against $HOME, so this survives a move to a
+# machine with a different username.
+path=.mail
 
 # User configuration
 #
