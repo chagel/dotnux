@@ -23,9 +23,14 @@ config-file = ?"local.conf"
 ```
 
 Colours and font size stay Omarchy's. If the app has no include mechanism, the
-honest options are to stop customizing it or to keep a snapshot — `shell.json`
-is the one snapshot here, restored by `make setup` only when it is missing and
-recorded by `make shell-capture`.
+honest options are to stop customizing it or to keep a snapshot. `shell.json` is
+the one snapshot here, and because it ships with the system and is only ever
+overwritten in place, it is never missing — so neither direction is automatic:
+
+```
+make shell-capture   live -> repo, once the bar is how you want it
+make shell-restore   repo -> live, after `omarchy refresh shell` resets it
+```
 
 Omarchy also has override directories of its own, which are the best place to be
 when they fit:

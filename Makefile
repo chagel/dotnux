@@ -39,26 +39,20 @@ setup::
 	done
 	## desktop entries are only picked up after the database is rebuilt
 	@update-desktop-database ${HOME}/.local/share/applications
-	## Restore shell.json only when it is missing. This one is a copy, not a
-	## link: every mutation goes through omarchy-shell-config, which writes a
-	## temp file and `mv`s it over $$HOME/.config/omarchy/shell.json: a literal
-	## path it never resolves, so a link there would be replaced by a regular
-	## file on the first `omarchy plugin enable` or `omarchy bar move`. That
-	## also makes the live file the one with the newest truth, so setup must
-	## never overwrite it -- this is the recovery path for a lost file or an
-	## `omarchy refresh shell`. Run `make shell-capture` to record changes.
-	@if [ -f ${HOME}/.config/omarchy/shell.json ]; then \
-		echo "shell.json present, left alone (make shell-capture to record it)"; \
-	else \
-		install -Dm644 $(BASE)/configs/omarchy/shell.json ${HOME}/.config/omarchy/shell.json; \
-		echo "restored shell.json from the repo"; \
-	fi
 
-# The other direction, always explicit: shell.json is edited in place by
-# omarchy's own commands, so the repo copy is a snapshot rather than the source
-# of truth. Take a snapshot once the bar is how you want it.
+# shell.json is a copy rather than a link: omarchy-shell-config renders each
+# mutation to a temp file and `mv`s it over a literal path, which would replace
+# a link with a regular file on the first `omarchy plugin enable`.
+#
+# It ships with the system and omarchy-refresh-config overwrites it in place,
+# so it is never missing -- there is nothing for setup to decide, and both
+# directions are a command you run on purpose.
 shell-capture:
 	@cp -v ${HOME}/.config/omarchy/shell.json $(BASE)/configs/omarchy/shell.json
+
+shell-restore:
+	@cp -v $(BASE)/configs/omarchy/shell.json ${HOME}/.config/omarchy/shell.json
+	@omarchy-restart-shell
 
 # Check the one rule in docs/omarchy.md that breaks silently. Also runs from
 # configs/omarchy/hooks/post-update.d after every `omarchy update`.
