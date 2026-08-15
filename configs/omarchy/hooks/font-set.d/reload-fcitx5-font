@@ -22,9 +22,13 @@ size=10
 
 # fcitx5 writes its own config as bare Key=Value -- no quoting, spaces kept
 # verbatim -- so the descriptor goes in unquoted as "<family> <size>".
+#
+# --follow-symlinks matters: this file is linked into the repo, and plain -i
+# renames a temp file over the target, which would replace the link with a
+# regular copy and quietly strip the config out of version control.
 for key in Font MenuFont TrayFont; do
   if grep -q "^$key=" "$conf"; then
-    sed -i "s|^$key=.*|$key=$font $size|" "$conf"
+    sed --follow-symlinks -i "s|^$key=.*|$key=$font $size|" "$conf"
   else
     printf '%s=%s %s\n' "$key" "$font" "$size" >>"$conf"
   fi
