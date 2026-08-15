@@ -1,6 +1,12 @@
 [Desktop Entry]
 Name=Teams for Linux
-Exec=env -u GDK_SCALE -u GDK_DPI_SCALE -u QT_SCALE_FACTOR /opt/teams-for-linux/teams-for-linux --ozone-platform-hint=auto --enable-wayland-ime --force-device-scale-factor=1.25 %U
+# No scaling flags: omarchy scales the monitors compositor-side (1.5 in
+# hypr/monitors.lua) and sets none of GDK_SCALE, GDK_DPI_SCALE or
+# QT_SCALE_FACTOR, so there is nothing to unset and forcing a device scale on
+# top of the compositor's only doubles up. ozone-platform-hint keeps it a native
+# Wayland client, which is how it reads that scale; enable-wayland-ime is what
+# lets fcitx5 type into it.
+Exec=/opt/teams-for-linux/teams-for-linux --ozone-platform-hint=auto --enable-wayland-ime %U
 Terminal=false
 Type=Application
 Icon=teams-for-linux
