@@ -1,7 +1,8 @@
 [Desktop Entry]
 Comment=WeChat Universal (second account)
 TryExec=/usr/lib/wechat-universal/start.sh
-Exec=env QT_SCALE_FACTOR=1.25 /usr/lib/wechat-universal/start.sh --multiple second %u
+# See the IME note in wechat-universal.desktop.
+Exec=env WECHAT_IME_WORKAROUND=fcitx QT_SCALE_FACTOR=1.25 /usr/lib/wechat-universal/start.sh --multiple second %u
 Icon=wechat-universal
 Name=WeChat (2nd Account)
 Name[zh_CN]=微信 (小号)

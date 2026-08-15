@@ -2,7 +2,12 @@
 Comment=WeChat Universal
 Comment[zh_CN]=
 TryExec=/usr/lib/wechat-universal/start.sh
-Exec=env QT_SCALE_FACTOR=1.25 /usr/lib/wechat-universal/start.sh %u
+# WECHAT_IME_WORKAROUND: start.sh only exports QT_IM_MODULE/GTK_IM_MODULE when
+# it can see @im=fcitx in XMODIFIERS, and omarchy sets XMODIFIERS in
+# environment.d -- which only reaches apps in a uwsm-managed session. Naming
+# the workaround outright is what start.sh's own `auto` detection would have
+# picked, and it holds however the session was started.
+Exec=env WECHAT_IME_WORKAROUND=fcitx QT_SCALE_FACTOR=1.25 /usr/lib/wechat-universal/start.sh %u
 Icon=wechat-universal
 Name=WeChat (Universal)
 Name[zh_CN]=微信 Universal
