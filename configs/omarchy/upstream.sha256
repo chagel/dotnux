@@ -1,6 +1,0 @@
-# sha256 of the upstream files this repo forks or shadows, recorded by
-# `scripts/omarchy-audit --accept` once a change has been reviewed.
-87b7fa254cab399f461e5614a59fed5ac313e013bb1b409cbfbe756eaa439b92  /usr/share/omarchy/config/ghostty/config
-39974ad22f150e7b47f407a808ed60299dbec53a80f7908425e5b153ace3fe8d  /usr/share/omarchy/config/hypr/hyprland.lua
-b16dc9646bf68e81643522cef504795d97cb5016d80d8b65784bde44f2c0883f  /usr/share/omarchy/config/omarchy/shell.json
-60b4ad67084d71222f04b118d6b5df0da7bc7b48169655674b84ae6d2f36b5ff  /usr/share/omarchy/default/hypr/bindings/utilities.lua

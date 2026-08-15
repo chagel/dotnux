@@ -60,12 +60,8 @@ setup::
 shell-capture:
 	@cp -v ${HOME}/.config/omarchy/shell.json $(BASE)/configs/omarchy/shell.json
 
-# Check the invariants in docs/omarchy.md against the installed Omarchy. Also
-# runs from configs/omarchy/hooks/post-update.d after every `omarchy update`,
-# which is the point: upstream moving is reported, not discovered later.
+# Check the one rule in docs/omarchy.md that breaks silently. Also runs from
+# configs/omarchy/hooks/post-update.d after every `omarchy update`.
 audit:
 	@$(BASE)/scripts/omarchy-audit
 
-# Re-record the upstream hashes once the reported changes have been reviewed.
-audit-accept:
-	@$(BASE)/scripts/omarchy-audit --accept

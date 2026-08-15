@@ -1,14 +1,9 @@
 #!/bin/bash
-# Report customization drift right after `omarchy update`, while the update is
-# still the obvious cause.
+# Check after `omarchy update` that nothing we link became a file Omarchy
+# rewrites, while the update is still the obvious cause.
 #
-# An Omarchy release can move a file we forked, start rewriting one we link, or
-# refresh a config whose include line carries our settings -- none of which
-# announces itself. The audit knows every one of those couplings; this just
-# makes sure it actually runs at the moment they can change.
-#
-# Advisory only: it never blocks the update, and the notification is there
-# because a post-update hook's stdout scrolls past unread.
+# Advisory only: it never blocks the update, and it notifies because a
+# post-update hook's stdout scrolls past unread.
 
 set -uo pipefail
 

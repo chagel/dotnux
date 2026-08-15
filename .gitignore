@@ -22,8 +22,6 @@ configs/systemd/user/graphical-session.target.wants
 profile/
 password*
 
-themes/gtk/gtk-3.0/bookmarks
-
 configs/mutt/aliases
 configs/mutt/signs/*
 !configs/mutt/signs/gmail
@@ -31,26 +29,12 @@ configs/mutt/accounts/*
 !configs/mutt/accounts/gmail
 !configs/mutt/accounts/pipi
 
-configs/tmuxinator/*
-!configs/tmuxinator/mgc.yml
-
 configs/wtf/config.yml
 
 quickmarks
 QtProject.conf
 configs/qutebrowser/bookmarks/urls
 configs/qutebrowser/autoconfig.yml
-
-configs/hypr/hyprland.conf
-
-# generated from themes/<name>.conf by scripts/theme -- the .tpl is the source
-configs/waybar/style.css
-themes/current.conf
-configs/fuzzel/fuzzel.ini
-configs/kitty/colors.conf
-configs/ghostty/colors
-configs/hypr/colors.lua
-themes/nvim.lua
 
 # personal: calendar ids, account addresses, subscribed feed urls
 configs/vdirsyncer/config

@@ -20,7 +20,7 @@ hl.unbind("SUPER + SHIFT + M")     -- was: launch Spotify
 
 local mainMod = "SUPER"
 
--- Second way into the Omarchy menu, on the key that used to run drun.
+-- Second way into the Omarchy menu, on the key the old fuzzel launcher used.
 -- SUPER+SPACE still opens it too.
 o.bind(mainMod .. " + SHIFT + grave", "Omarchy menu", "omarchy-menu toggle")
 
@@ -88,8 +88,8 @@ o.bind(mainMod .. " + M",         "Full width",   hl.dsp.window.fullscreen({ mod
 o.bind(mainMod .. " + SHIFT + M", "Full screen",  hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 o.bind(mainMod .. " + F",         "Toggle float", hl.dsp.window.float({ action = "toggle" }))
 
--- SHIFT+TAB cycles within the workspace. Plain TAB was a fuzzel picker over
--- every workspace (scripts/hyprwin); fuzzel is not installed here, so it is
--- left on Omarchy's in-workspace cycle until it is.
+-- TAB and SHIFT+TAB cycle within the workspace. This used to be a fuzzel
+-- picker over every workspace; Omarchy's own cycle is enough, and the menu
+-- covers the picking.
 o.bind(mainMod .. " + TAB",         "Focus next window",     hl.dsp.window.cycle_next())
 o.bind(mainMod .. " + SHIFT + TAB", "Focus previous window", hl.dsp.window.cycle_next({ next = false }))

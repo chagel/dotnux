@@ -8,7 +8,8 @@ This repository also serves as an example to demonstrate how to use the [dotbase
 
 ## Features
 - **Base Configurations:** Includes settings for Vim, tmux, and more (from dotbase).
-- **Specific Configurations:** Custom settings for fish, kitty, etc.
+- **Specific Configurations:** Custom settings for fish, ghostty, mail and calendar.
+- **Omarchy:** This machine runs [Omarchy](https://omarchy.org/); see [docs/omarchy.md](docs/omarchy.md) for how customization is kept out of the files it manages.
 - **Scripts:** Collection of useful tools and hacks.
 - **Makefile:** Human-readable commands for easy management.
 
@@ -18,9 +19,9 @@ This repository also serves as an example to demonstrate how to use the [dotbase
    git clone https://github.com/chagel/dotnux.git
    ```
 2. Check the `Makefile` for available commands.
-3. Run `make link` to link the dotfiles:
+3. Run `make` to link the dotfiles:
    ```sh
-   make link
+   make
    ```
 
 ## License
