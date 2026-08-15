@@ -5,5 +5,10 @@ Description=Mailbox synchronization service
 Type=oneshot
 StandardOutput=null
 StandardError=journal
+# oneshot defaults to an infinite start timeout. A hung PassCmd (op waiting on
+# the desktop app) would leave the unit activating forever, and OnUnitActiveSec
+# only re-arms once it goes inactive -- so the sync would stop for good, with
+# nothing in the journal. A full sync runs in ~1m; fail loudly and retry instead.
+TimeoutStartSec=5m
 ExecStart=/usr/bin/mbsync -Va
 ExecStartPost=/usr/bin/notmuch new --quiet
