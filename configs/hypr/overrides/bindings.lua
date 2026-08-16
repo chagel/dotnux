@@ -35,6 +35,12 @@ o.bind("CONTROL + SHIFT + ALT + L", "Lock system", "omarchy-system-lock")
 -- Screenshot likewise, alongside the PRINT bind utilities.lua still holds.
 o.bind("CONTROL + SHIFT + ALT + S", "Screenshot", "omarchy-capture-screenshot")
 
+-- Live en/zh dictionary (scripts/define). `tui` routes through
+-- omarchy-launch-tui, so it opens in whatever terminal is default and gets the
+-- org.omarchy.define app-id; `focus` raises the window if it is already open
+-- rather than stacking another.
+o.bind("CONTROL + SHIFT + ALT + D", "Define", { tui = "define", focus = true })
+
 o.bind(mainMod .. " + Q", "Close window", hl.dsp.window.close())
 
 -- Focus with mainMod + hjkl.

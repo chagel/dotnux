@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# Live en/zh dictionary. The entry re-renders as you type; enter copies the
+# highlighted line.
+#
+# fzf in a terminal rather than a launcher prompt: fuzzel has no IME support, so
+# Chinese cannot be typed into it at all, and it cannot re-run a query per
+# keystroke. Both work here.
+#
+# The terminal is omarchy's business, not this script's -- `omarchy launch tui`
+# goes through xdg-terminal-exec, so it follows whatever terminal is default and
+# tags the window with an app-id. The CONTROL+SHIFT+ALT+D binding uses the
+# focus variant, so pressing it again raises the open window instead of opening
+# a second one.
+#
+#   define            the fzf loop; run it inside a terminal
+#   define --lookup W print one entry, called by fzf on every keystroke
+
+set -eu
+
+SELF=$(readlink -f "$0")
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/define"
+
+notify() {
+  if command -v omarchy-notification-send > /dev/null 2>&1; then
+    omarchy-notification-send -u critical "define" "$1"
+  elif command -v notify-send > /dev/null 2>&1; then
+    notify-send -u critical define "$1"
+  fi
+  echo "define: $1" >&2
+}
+
+lookup() {
+  word=$1
+  [ -n "$word" ] || exit 0
+
+  # Han anywhere means the Chinese side is being looked up, so gloss it into
+  # English. A shell glob over the CJK range is not dependable across locales.
+  if printf '%s' "$word" | grep -qP '\p{Han}'; then
+    dir="zh:en"
+  else
+    dir="en:zh"
+  fi
+
+  # A lookup costs 0.4-1.4s, nearly all of it waiting on the translation
+  # backend, so entries are kept forever -- a definition does not move.
+  # Clear with: rm -rf "$CACHE"
+  mkdir -p "$CACHE"
+  hit="$CACHE/$(printf '%s:%s' "$dir" "$word" | sha256sum | cut -c1-32)"
+
+  if [ -s "$hit" ]; then
+    cat "$hit"
+  else
+    trans -d -no-ansi "$dir" -- "$word" 2>&1 | tee "$hit"
+  fi
+}
+
+tui() {
+  # --disabled hands the query to us instead of letting fzf filter, and the
+  # leading sleep debounces: fzf kills the previous reload when the next
+  # keystroke arrives, so only a pause actually spends a request.
+  printf '' | fzf \
+    --disabled \
+    --layout=reverse \
+    --prompt 'define  ' \
+    --header 'type a word to translate between en/zh' \
+    --bind "change:reload:sleep 0.3; $SELF --lookup {q} 2>/dev/null || true" \
+    --bind 'enter:become(printf %s {} | wl-copy)' \
+    --bind 'esc:abort'
+}
+
+case "${1-}" in
+  --lookup)
+    shift
+    lookup "${1-}"
+    ;;
+  *)
+    for dep in fzf trans wl-copy; do
+      command -v "$dep" > /dev/null 2>&1 || { notify "missing dependency: $dep"; exit 1; }
+    done
+    tui
+    ;;
+esac

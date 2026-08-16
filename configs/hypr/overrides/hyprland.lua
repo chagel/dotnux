@@ -29,3 +29,10 @@ require("default.hypr.toggles")
 
 -- Add any other personal Hyprland configuration below.
 -- o.window("qemu", { workspace = "5" })
+
+-- The dictionary is a lookup, not a window to manage: float and centre it.
+-- omarchy's own rules only tag org.omarchy.* as terminals, they do not float
+-- them, so this is ours to say.
+o.window("org.omarchy.define", { float = true })
+o.window("org.omarchy.define", { center = true })
+o.window("org.omarchy.define", { size = { 900, 520 } })
