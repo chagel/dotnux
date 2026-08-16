@@ -1,0 +1,44 @@
+[Desktop Entry]
+Version=1.0
+Name=Chromium
+GenericName=Web Browser
+Comment=Access the Internet
+# force-device-scale-factor is the only chromium-only size knob there is: it
+# scales the chrome and the page together. Chromium takes its UI *font* from
+# GTK's font-name (it dlopens libgtk at runtime), and there is no flag for that,
+# so changing the font instead would move every GTK and Qt app with it.
+#
+# The number is absolute, not a multiplier. Chromium runs here as a native
+# Wayland client (hyprctl reports xwayland=false), so it already renders at the
+# monitor's own 1.5 and this REPLACES that -- anything below 1.5 shrinks the UI.
+# 1.7 is roughly 13% larger than untouched. It also pins one factor for every
+# display: both monitors are 1.5 today, but a differently scaled one would get
+# 1.7 too rather than its own.
+#
+# This lives here rather than in ~/.config/chromium-flags.conf because that file
+# is an `omarchy refresh chromium` target, and refresh copies over it with
+# `cp -f` -- which writes *through* a link, so the repo copy cannot be protected
+# by linking it. ~/.local/share/applications is ours alone.
+#
+# Trade-off: this only applies to launches that go through the desktop entry --
+# the launcher, and other apps handing off a URL. `chromium` typed in a terminal
+# gets the packaged flags only.
+Exec=/usr/bin/chromium --force-device-scale-factor=1.7 %U
+StartupNotify=true
+# Upstream ships an unsubstituted @@startup_wm_class here; the real class is
+# plain "chromium", which is what the window actually reports.
+StartupWMClass=chromium
+Terminal=false
+Icon=chromium
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/chromium;
+Actions=new-window;new-private-window;
+
+[Desktop Action new-window]
+Name=New Window
+Exec=/usr/bin/chromium --force-device-scale-factor=1.7
+
+[Desktop Action new-private-window]
+Name=New Incognito Window
+Exec=/usr/bin/chromium --force-device-scale-factor=1.7 --incognito
