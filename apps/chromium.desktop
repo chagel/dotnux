@@ -8,16 +8,23 @@ Comment=Access the Internet
 # GTK's font-name (it dlopens libgtk at runtime), and there is no flag for that,
 # so changing the font instead would move every GTK and Qt app with it.
 #
-# The number is absolute, not a multiplier. Chromium runs here as a native
-# Wayland client (hyprctl reports xwayland=false), so it already renders at the
-# monitor's own 1.5 and this REPLACES that: below 1.5 shrinks, above enlarges.
+# Baseline is 1.0, NOT the monitor's 1.5. Chromium is a native Wayland client
+# here but still lays its UI out at scale 1 and lets the compositor upscale the
+# surface by 1.5 -- which is why everything reads large and slightly soft. So
+# the factor scales from 1.0 and anything above it makes matters worse.
 #
-# 1.15 is 1.5 x 0.75 -- the same 25% reduction QT_FONT_DPI=72 applies to Qt
-# apps, for the same reason: 11pt at 96 dpi on a 1.5-scaled 4K panel lands too
-# big. Keeping the two knobs on one ratio means chromium and the Qt apps agree.
+# Measured on this machine, comparing the toolbar band positions in a
+# fixed-width window:
+#
+#   no flag   y = 9, 26, 39, 58     1.00x
+#   1.15      y = 10, 31, 45, 67    1.15x   (bigger)
+#   0.8       y = 7, 21, 31, 47     0.81x   (smaller)
+#
+# 0.8 is a fifth smaller. Values below 1.0 are accepted despite what the flag
+# name suggests.
 #
 # It does pin one factor for every display: both monitors are 1.5 today, but a
-# differently scaled one would get 1.15 too rather than its own.
+# differently scaled one would get 0.8 too rather than its own.
 #
 # This lives here rather than in ~/.config/chromium-flags.conf because that file
 # is an `omarchy refresh chromium` target, and refresh copies over it with
@@ -27,7 +34,7 @@ Comment=Access the Internet
 # Trade-off: this only applies to launches that go through the desktop entry --
 # the launcher, and other apps handing off a URL. `chromium` typed in a terminal
 # gets the packaged flags only.
-Exec=/usr/bin/chromium --force-device-scale-factor=1.15 %U
+Exec=/usr/bin/chromium --force-device-scale-factor=0.8 %U
 StartupNotify=true
 # Upstream ships an unsubstituted @@startup_wm_class here; the real class is
 # plain "chromium", which is what the window actually reports.
@@ -41,8 +48,8 @@ Actions=new-window;new-private-window;
 
 [Desktop Action new-window]
 Name=New Window
-Exec=/usr/bin/chromium --force-device-scale-factor=1.15
+Exec=/usr/bin/chromium --force-device-scale-factor=0.8
 
 [Desktop Action new-private-window]
 Name=New Incognito Window
-Exec=/usr/bin/chromium --force-device-scale-factor=1.15 --incognito
+Exec=/usr/bin/chromium --force-device-scale-factor=0.8 --incognito
