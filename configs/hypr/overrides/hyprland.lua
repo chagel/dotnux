@@ -39,7 +39,6 @@ require("hypr.bindings")
 -- there. Still a require underneath, which matters: bootstrap.lua clears
 -- package.loaded for the `hypr` prefix on every reload, so a regenerated file
 -- is re-read rather than served from the module cache.
-require("default.hypr.require_optional").module("hypr.workspace-tags")
 require("hypr.looknfeel")
 require("hypr.autostart")
 
@@ -55,3 +54,23 @@ require("default.hypr.toggles")
 o.window("org.omarchy.define", { float = true })
 o.window("org.omarchy.define", { center = true })
 o.window("org.omarchy.define", { size = { 900, 520 } })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- workspace-tags:begin  (managed by the Workspace Tags widget)
+require("default.hypr.require_optional").module("hypr.workspace-tags")
+-- workspace-tags:end

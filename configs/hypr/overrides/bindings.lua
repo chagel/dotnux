@@ -96,3 +96,9 @@ o.bind(mainMod .. " + F",         "Toggle float", hl.dsp.window.float({ action =
 -- covers the picking.
 o.bind(mainMod .. " + TAB",         "Focus next window",     hl.dsp.window.cycle_next())
 o.bind(mainMod .. " + SHIFT + TAB", "Focus previous window", hl.dsp.window.cycle_next({ next = false }))
+
+-- The picking, back in a form worth having: a tree of every monitor,
+-- workspace and window that filters as you type. Cycling only reaches the
+-- workspace you are already on, which is the half this covers. SLASH matches
+-- the `/` prompt the picker opens with.
+o.bind(mainMod .. " + slash", "Window tree", "omarchy-shell shell toggle chagel.window-tree")
