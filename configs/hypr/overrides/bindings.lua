@@ -55,20 +55,17 @@ o.bind(mainMod .. " + SHIFT + L", "Grow window horizontally",   hl.dsp.window.re
 o.bind(mainMod .. " + SHIFT + J", "Grow window vertically",     hl.dsp.window.resize({ x = 0,   y = 50,  relative = true }), { repeating = true })
 o.bind(mainMod .. " + SHIFT + K", "Shrink window vertically",   hl.dsp.window.resize({ x = 0,   y = -50, relative = true }), { repeating = true })
 
--- CONTROL switches workspace; mainMod forwards ALT+<digit> to the focused
--- window (the macOS CMD+[1-9] habit); mainMod+SHIFT moves the window.
+-- mainMod forwards ALT+<digit> to the focused window (the macOS CMD+[1-9]
+-- habit). CONTROL+<digit>, mainMod+SHIFT+<digit> and the mainMod+wheel scroll
+-- used to live here too; hypr/workspaces.lua owns them now, because on two
+-- monitors a digit has to resolve against the focused screen rather than
+-- against one pool shared by both.
 for i = 1, 9 do
-  o.bind(mainMod .. " + " .. i,         "Send ALT+" .. i .. " to window",   hl.dsp.send_shortcut({ mods = "ALT", key = tostring(i), window = "activewindow" }))
-  o.bind(mainMod .. " + SHIFT + " .. i, "Move window to workspace " .. i,   hl.dsp.window.move({ workspace = i }))
-  o.bind("CONTROL + " .. i,             "Switch to workspace " .. i,        hl.dsp.focus({ workspace = i }))
+  o.bind(mainMod .. " + " .. i, "Send ALT+" .. i .. " to window", hl.dsp.send_shortcut({ mods = "ALT", key = tostring(i), window = "activewindow" }))
 end
 
 o.bind(mainMod .. " + 0",         "Toggle magic workspace",  hl.dsp.workspace.toggle_special("magic"))
 o.bind(mainMod .. " + SHIFT + 0", "Move window to magic",    hl.dsp.window.move({ workspace = "special:magic" }))
-
--- Scroll through workspaces with mainMod + wheel.
-o.bind(mainMod .. " + mouse_down", "Next workspace",     hl.dsp.focus({ workspace = "e+1" }))
-o.bind(mainMod .. " + mouse_up",   "Previous workspace", hl.dsp.focus({ workspace = "e-1" }))
 
 -- Move/resize with mainMod + LMB/RMB drag.
 o.bind(mainMod .. " + mouse:272", "Move window",   hl.dsp.window.drag(),   { mouse = true })

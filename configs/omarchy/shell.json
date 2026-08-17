@@ -6,15 +6,18 @@
   },
   "bar": {
     "position": "top",
-    "transparent": false,
+    "transparent": true,
     "centerAnchor": "tmn73.calendar",
     "layout": {
       "left": [
         {
-          "id": "omarchy.menu"
-        },
-        {
-          "id": "omarchy.workspaces"
+          "id": "chagel.workspace-tags",
+          "monitors": [
+            "Dell Inc. DELL P2715Q 54KKD7AA486L",
+            "Dell Inc. DELL U2718Q 4K8X78A61P3L"
+          ],
+          "moveMods": "SUPER + SHIFT",
+          "viewMods": "CONTROL"
         }
       ],
       "center": [
@@ -26,6 +29,40 @@
         },
         {
           "id": "omarchy.system-update"
+        },
+        {
+          "id": "chagel.alternative-clock",
+          "format": "h:mm AP",
+          "zones": [
+            {
+              "label": "CST",
+              "zone": "Asia/Shanghai"
+            },
+            {
+              "bar": false,
+              "zone": "Asia/Tokyo"
+            },
+            {
+              "bar": false,
+              "zone": "UTC"
+            },
+            {
+              "bar": false,
+              "zone": "Asia/Bangkok"
+            },
+            {
+              "bar": false,
+              "zone": "Asia/Singapore"
+            },
+            {
+              "bar": false,
+              "zone": "Europe/London"
+            },
+            {
+              "bar": false,
+              "zone": "Europe/Berlin"
+            }
+          ]
         },
         {
           "id": "tmn73.calendar",
