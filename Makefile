@@ -54,6 +54,17 @@ setup::
 			${HOME}/.local/share/fcitx5/themes/omarchy/$$img.png; \
 	done
 
+	## login shell -- lives in /etc/passwd, which no symlink reaches. The guard
+	## keeps chsh from asking for a password on every run, and declining is not
+	## a failed setup: everything else has already been linked either way.
+	@fish=$$(command -v fish); \
+		if [ -z "$$fish" ]; then \
+			echo "fish is not installed -- login shell left as is"; \
+		elif [ "$$(getent passwd $$(id -un) | cut -d: -f7)" != "$$fish" ]; then \
+			echo "setting login shell to $$fish (chsh asks for your password)"; \
+			chsh -s "$$fish" || echo "chsh declined -- login shell left as is"; \
+		fi
+
 # shell.json is a copy rather than a link: omarchy-shell-config renders each
 # mutation to a temp file and `mv`s it over a literal path, which would replace
 # a link with a regular file on the first `omarchy plugin enable`.
