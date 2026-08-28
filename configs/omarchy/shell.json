@@ -14,7 +14,8 @@
           "id": "chagel.workspace-tags",
           "monitors": [
             "Dell Inc. DELL P2715Q 54KKD7AA486L",
-            "Dell Inc. DELL U2718Q 4K8X78A61P3L"
+            "Dell Inc. DELL U2718Q 4K8X78A61P3L",
+            "Apple Computer Inc Color LCD"
           ],
           "moveMods": "SUPER + SHIFT",
           "viewMods": "CONTROL"
@@ -97,5 +98,9 @@
       ]
     }
   },
-  "plugins": []
+  "plugins": [
+    {
+      "id": "chagel.window-tree"
+    }
+  ]
 }
